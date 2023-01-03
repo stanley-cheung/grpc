@@ -327,6 +327,7 @@ bool InteropClient::DoLargeUnary() {
     return false;
   }
   gpr_log(GPR_DEBUG, "Large unary done.");
+  sleep(65);
   return true;
 }
 
