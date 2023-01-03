@@ -71,6 +71,7 @@ grpc_cc_binary(
     deps = [
         ":interop_server_lib",
         "//:grpc++",
+        "//:grpcpp_gcp_observability",
         "//test/cpp/util:test_util",
     ],
 )
@@ -125,6 +126,7 @@ grpc_cc_library(
     language = "C++",
     deps = [
         ":client_helper_lib",
+        "//:grpcpp_gcp_observability",
     ],
 )
 
