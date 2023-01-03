@@ -158,6 +158,7 @@ class TestServiceImpl : public TestService::Service {
 
   Status UnaryCall(ServerContext* context, const SimpleRequest* request,
                    SimpleResponse* response) override {
+    gpr_log(GPR_DEBUG, "Processing a UnaryCall request");
     MaybeEchoMetadata(context);
     if (request->has_response_compressed()) {
       const bool compression_requested = request->response_compressed().value();
@@ -188,6 +189,7 @@ class TestServiceImpl : public TestService::Service {
           request->response_status().message());
     }
 
+    gpr_log(GPR_DEBUG, "Finished processing a UnaryCall request");
     return Status::OK;
   }
 
