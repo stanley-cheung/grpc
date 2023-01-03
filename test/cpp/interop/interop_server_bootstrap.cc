@@ -18,6 +18,8 @@
 
 #include <signal.h>
 
+#include <grpcpp/ext/gcp_observability.h>
+
 #include "test/core/util/test_config.h"
 #include "test/cpp/interop/server_helper.h"
 #include "test/cpp/util/test_config.h"
@@ -32,6 +34,9 @@ int main(int argc, char** argv) {
   grpc::testing::TestEnvironment env(&argc, argv);
   grpc::testing::InitTest(&argc, &argv, true);
   signal(SIGINT, sigint_handler);
+
+  auto status = grpc::experimental::GcpObservabilityInit();
+  gpr_log(GPR_DEBUG, "GcpObservabilityInit() status_code: %d", status.code());
 
   grpc::testing::interop::RunServer(
       grpc::testing::CreateInteropServerCredentials());
