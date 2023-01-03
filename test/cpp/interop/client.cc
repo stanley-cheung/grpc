@@ -26,6 +26,7 @@
 #include <grpc/support/log.h>
 #include <grpcpp/channel.h>
 #include <grpcpp/client_context.h>
+#include <grpcpp/ext/gcp_observability.h>
 
 #include "src/core/lib/gpr/string.h"
 #include "src/core/lib/gprpp/crash.h"
@@ -193,6 +194,9 @@ int main(int argc, char** argv) {
   gpr_log(GPR_INFO, "Testing these cases: %s",
           absl::GetFlag(FLAGS_test_case).c_str());
   int ret = 0;
+
+  auto status = grpc::experimental::GcpObservabilityInit();
+  gpr_log(GPR_DEBUG, "GcpObservabilityInit() status_code: %d", status.code());
 
   grpc::testing::ChannelCreationFunc channel_creation_func;
   std::string test_case = absl::GetFlag(FLAGS_test_case);
