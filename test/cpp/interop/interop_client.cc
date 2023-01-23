@@ -327,7 +327,8 @@ bool InteropClient::DoLargeUnary() {
     return false;
   }
   gpr_log(GPR_DEBUG, "Large unary done.");
-  sleep(65);
+  gpr_log(GPR_DEBUG, "Sleeping 42s before shutdown.");
+  sleep(42);
   return true;
 }
 
@@ -706,11 +707,13 @@ bool InteropClient::DoPingPong() {
     response_parameter->set_size(response_stream_sizes[i]);
     payload->set_body(std::string(request_stream_sizes[i], '\0'));
 
+    gpr_log(GPR_DEBUG, "Client: writing a message in FullDuplexCall");
     if (!stream->Write(request)) {
       gpr_log(GPR_ERROR, "DoPingPong(): stream->Write() failed. i: %d", i);
       return TransientFailureOrAbort();
     }
 
+    gpr_log(GPR_DEBUG, "Client: reading a message in FullDuplexCall");
     if (!stream->Read(&response)) {
       gpr_log(GPR_ERROR, "DoPingPong(): stream->Read() failed. i:%d", i);
       return TransientFailureOrAbort();
@@ -730,6 +733,8 @@ bool InteropClient::DoPingPong() {
   }
 
   gpr_log(GPR_DEBUG, "Ping pong streaming done.");
+  gpr_log(GPR_DEBUG, "Sleeping 42s before shutdown.");
+  sleep(42);
   return true;
 }
 
