@@ -257,11 +257,13 @@ class TestServiceImpl : public TestService::Service {
       ServerContext* context,
       ServerReaderWriter<StreamingOutputCallResponse,
                          StreamingOutputCallRequest>* stream) override {
+    gpr_log(GPR_DEBUG, "Processing a FullDuplexCall request");
     MaybeEchoMetadata(context);
     StreamingOutputCallRequest request;
     StreamingOutputCallResponse response;
     bool write_success = true;
     while (write_success && stream->Read(&request)) {
+      gpr_log(GPR_DEBUG, "Server: reading a message in FullDuplexCall");
       if (request.has_response_status()) {
         return Status(
             static_cast<grpc::StatusCode>(request.response_status().code()),
@@ -279,10 +281,12 @@ class TestServiceImpl : public TestService::Service {
                            gpr_time_from_micros(time_us, GPR_TIMESPAN));
           gpr_sleep_until(sleep_time);
         }
+        gpr_log(GPR_DEBUG, "Server: writing a message in FullDuplexCall");
         write_success = stream->Write(response);
       }
     }
     if (write_success) {
+      gpr_log(GPR_DEBUG, "Finished processing FullDuplexCall request");
       return Status::OK;
     } else {
       return Status(grpc::StatusCode::INTERNAL, "Error writing response.");
