@@ -197,6 +197,9 @@ int main(int argc, char** argv) {
 
   auto status = grpc::experimental::GcpObservabilityInit();
   gpr_log(GPR_DEBUG, "GcpObservabilityInit() status_code: %d", status.code());
+  if (!status.ok()) {
+    return 1;
+  }
 
   grpc::testing::ChannelCreationFunc channel_creation_func;
   std::string test_case = absl::GetFlag(FLAGS_test_case);
