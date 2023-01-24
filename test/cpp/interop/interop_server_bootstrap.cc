@@ -37,6 +37,9 @@ int main(int argc, char** argv) {
 
   auto status = grpc::experimental::GcpObservabilityInit();
   gpr_log(GPR_DEBUG, "GcpObservabilityInit() status_code: %d", status.code());
+  if (!status.ok()) {
+    return 1;
+  }
 
   grpc::testing::interop::RunServer(
       grpc::testing::CreateInteropServerCredentials());
