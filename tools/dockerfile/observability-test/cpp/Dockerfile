@@ -14,6 +14,10 @@
 
 FROM debian:bullseye
 
+WORKDIR /usr/share/grpc
+
+COPY ./etc/roots.pem .
+
 WORKDIR /grpc/bazel-bin/test/cpp/interop
 
 COPY ./execroot/com_github_grpc_grpc/bazel-out/k8-fastbuild/bin/test/cpp/interop/interop_server .
