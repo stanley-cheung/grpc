@@ -126,6 +126,7 @@ ABSL_FLAG(
     bool, log_metadata_and_status, false,
     "If set to 'true', will print received initial and trailing metadata, "
     "grpc-status and error message to the console, in a stable format.");
+ABSL_FLAG(int32_t, exporter_interval, 0, "Observability: exporter sleep interval");
 
 using grpc::testing::CreateChannelForTestCase;
 using grpc::testing::GetServiceAccountJsonKey;
@@ -353,6 +354,11 @@ int main(int argc, char** argv) {
     gpr_log(GPR_ERROR, "Unsupported test case %s. Valid options are\n%s",
             absl::GetFlag(FLAGS_test_case).c_str(), test_cases.c_str());
     ret = 1;
+  }
+
+  if (absl::GetFlag(FLAGS_exporter_interval)) {
+    gpr_log(GPR_DEBUG, "Sleeping %ds before shutdown.", absl::GetFlag(FLAGS_exporter_interval));
+    sleep(absl::GetFlag(FLAGS_exporter_interval));
   }
 
   return ret;

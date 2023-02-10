@@ -327,8 +327,6 @@ bool InteropClient::DoLargeUnary() {
     return false;
   }
   gpr_log(GPR_DEBUG, "Large unary done.");
-  gpr_log(GPR_DEBUG, "Sleeping 65s before shutdown.");
-  sleep(65);
   return true;
 }
 
@@ -733,8 +731,6 @@ bool InteropClient::DoPingPong() {
   }
 
   gpr_log(GPR_DEBUG, "Ping pong streaming done.");
-  gpr_log(GPR_DEBUG, "Sleeping 65s before shutdown.");
-  sleep(65);
   return true;
 }
 
