@@ -20,6 +20,7 @@
 #include <unordered_map>
 
 #include "absl/flags/flag.h"
+#include "absl/strings/str_split.h"
 
 #include <grpc/grpc.h>
 #include <grpc/support/alloc.h>
@@ -330,6 +331,16 @@ int main(int argc, char** argv) {
   if (absl::GetFlag(FLAGS_test_case) == "all") {
     for (const auto& action : actions) {
       action.second();
+    }
+  } else if (absl::GetFlag(FLAGS_test_case).find(",")) {
+    std::vector<std::string> test_cases = absl::StrSplit(absl::GetFlag(FLAGS_test_case), ",");
+    for (const auto& test_case : test_cases) {
+      if (actions.find(test_case) != actions.end()) {
+        actions.find(test_case)->second();
+      } else {
+        gpr_log(GPR_ERROR, "Unsupported test case %s.", test_case.c_str());
+        ret = 1;
+      }
     }
   } else if (actions.find(absl::GetFlag(FLAGS_test_case)) != actions.end()) {
     actions.find(absl::GetFlag(FLAGS_test_case))->second();
