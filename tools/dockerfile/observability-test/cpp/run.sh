@@ -20,7 +20,7 @@ if [ "$1" = "server" ] ; then
   /grpc/bazel-bin/test/cpp/interop/interop_server --port $2
 
 elif [ "$1" = "client" ] ; then
-  /grpc/bazel-bin/test/cpp/interop/interop_client --server_host=$2 --server_port=$3 --test_case=large_unary
+  /grpc/bazel-bin/test/cpp/interop/interop_client --server_host=$2 --server_port=$3 --test_case=$5
 
 else
   echo "Invalid action $1"
