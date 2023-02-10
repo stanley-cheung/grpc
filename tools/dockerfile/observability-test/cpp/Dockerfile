@@ -16,8 +16,8 @@ FROM debian:bullseye
 
 WORKDIR /grpc/bazel-bin/test/cpp/interop
 
-COPY ./bazel-bin/test/cpp/interop/interop_server .
-COPY ./bazel-bin/test/cpp/interop/interop_client .
+COPY ./execroot/com_github_grpc_grpc/bazel-out/k8-fastbuild/bin/test/cpp/interop/interop_server .
+COPY ./execroot/com_github_grpc_grpc/bazel-out/k8-fastbuild/bin/test/cpp/interop/interop_client .
 
 WORKDIR /grpc/tools/dockerfile/observability-test/cpp
 
