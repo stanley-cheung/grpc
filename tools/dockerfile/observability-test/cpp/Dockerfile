@@ -14,6 +14,8 @@
 
 FROM debian:bullseye
 
+ENV GRPC_VERBOSITY debug
+
 WORKDIR /usr/share/grpc
 
 COPY ./etc/roots.pem .
