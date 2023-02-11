@@ -767,6 +767,15 @@ protobuf_generate_grpc_cpp_with_import_path_correction(
 protobuf_generate_grpc_cpp_with_import_path_correction(
   test/core/tsi/alts/fake_handshaker/transport_security_common.proto test/core/tsi/alts/fake_handshaker/transport_security_common.proto
 )
+protobuf_generate_grpc_cpp_with_import_path_correction(
+  third_party/googleapis/google/api/label.proto google/api/label.proto
+)
+protobuf_generate_grpc_cpp_with_import_path_correction(
+  third_party/googleapis/google/api/launch_stage.proto google/api/launch_stage.proto
+)
+protobuf_generate_grpc_cpp_with_import_path_correction(
+  third_party/googleapis/google/api/monitored_resource.proto google/api/monitored_resource.proto
+)
 
 if(gRPC_BUILD_TESTS)
   add_custom_target(buildtests_c)
@@ -14031,6 +14040,30 @@ add_executable(interop_client
   ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/test.grpc.pb.cc
   ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/test.pb.h
   ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/test.grpc.pb.h
+  ${_gRPC_PROTO_GENS_DIR}/google/api/label.pb.cc
+  ${_gRPC_PROTO_GENS_DIR}/google/api/label.grpc.pb.cc
+  ${_gRPC_PROTO_GENS_DIR}/google/api/label.pb.h
+  ${_gRPC_PROTO_GENS_DIR}/google/api/label.grpc.pb.h
+  ${_gRPC_PROTO_GENS_DIR}/google/api/launch_stage.pb.cc
+  ${_gRPC_PROTO_GENS_DIR}/google/api/launch_stage.grpc.pb.cc
+  ${_gRPC_PROTO_GENS_DIR}/google/api/launch_stage.pb.h
+  ${_gRPC_PROTO_GENS_DIR}/google/api/launch_stage.grpc.pb.h
+  ${_gRPC_PROTO_GENS_DIR}/google/api/monitored_resource.pb.cc
+  ${_gRPC_PROTO_GENS_DIR}/google/api/monitored_resource.grpc.pb.cc
+  ${_gRPC_PROTO_GENS_DIR}/google/api/monitored_resource.pb.h
+  ${_gRPC_PROTO_GENS_DIR}/google/api/monitored_resource.grpc.pb.h
+  src/cpp/ext/filters/census/channel_filter.cc
+  src/cpp/ext/filters/census/client_filter.cc
+  src/cpp/ext/filters/census/context.cc
+  src/cpp/ext/filters/census/grpc_plugin.cc
+  src/cpp/ext/filters/census/measures.cc
+  src/cpp/ext/filters/census/rpc_encoding.cc
+  src/cpp/ext/filters/census/server_filter.cc
+  src/cpp/ext/filters/census/views.cc
+  src/cpp/ext/filters/logging/logging_filter.cc
+  src/cpp/ext/gcp/observability.cc
+  src/cpp/ext/gcp/observability_config.cc
+  src/cpp/ext/gcp/observability_logging_sink.cc
   test/core/security/oauth2_utils.cc
   test/cpp/interop/client.cc
   test/cpp/interop/client_helper.cc
@@ -14084,6 +14117,30 @@ add_executable(interop_server
   ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/test.grpc.pb.cc
   ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/test.pb.h
   ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/test.grpc.pb.h
+  ${_gRPC_PROTO_GENS_DIR}/google/api/label.pb.cc
+  ${_gRPC_PROTO_GENS_DIR}/google/api/label.grpc.pb.cc
+  ${_gRPC_PROTO_GENS_DIR}/google/api/label.pb.h
+  ${_gRPC_PROTO_GENS_DIR}/google/api/label.grpc.pb.h
+  ${_gRPC_PROTO_GENS_DIR}/google/api/launch_stage.pb.cc
+  ${_gRPC_PROTO_GENS_DIR}/google/api/launch_stage.grpc.pb.cc
+  ${_gRPC_PROTO_GENS_DIR}/google/api/launch_stage.pb.h
+  ${_gRPC_PROTO_GENS_DIR}/google/api/launch_stage.grpc.pb.h
+  ${_gRPC_PROTO_GENS_DIR}/google/api/monitored_resource.pb.cc
+  ${_gRPC_PROTO_GENS_DIR}/google/api/monitored_resource.grpc.pb.cc
+  ${_gRPC_PROTO_GENS_DIR}/google/api/monitored_resource.pb.h
+  ${_gRPC_PROTO_GENS_DIR}/google/api/monitored_resource.grpc.pb.h
+  src/cpp/ext/filters/census/channel_filter.cc
+  src/cpp/ext/filters/census/client_filter.cc
+  src/cpp/ext/filters/census/context.cc
+  src/cpp/ext/filters/census/grpc_plugin.cc
+  src/cpp/ext/filters/census/measures.cc
+  src/cpp/ext/filters/census/rpc_encoding.cc
+  src/cpp/ext/filters/census/server_filter.cc
+  src/cpp/ext/filters/census/views.cc
+  src/cpp/ext/filters/logging/logging_filter.cc
+  src/cpp/ext/gcp/observability.cc
+  src/cpp/ext/gcp/observability_config.cc
+  src/cpp/ext/gcp/observability_logging_sink.cc
   test/cpp/interop/interop_server.cc
   test/cpp/interop/interop_server_bootstrap.cc
   test/cpp/interop/server_helper.cc
