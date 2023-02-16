@@ -16,6 +16,8 @@ FROM debian:bullseye
 
 ENV GRPC_VERBOSITY debug
 
+RUN apt-get update && apt-get install -y git
+
 WORKDIR /grpc
 
 COPY . .
