@@ -16,17 +16,12 @@ FROM debian:bullseye
 
 ENV GRPC_VERBOSITY debug
 
-WORKDIR /usr/share/grpc
+WORKDIR /grpc
 
-COPY ./etc/roots.pem .
+COPY . .
 
-WORKDIR /grpc/bazel-bin/test/cpp/interop
+RUN git submodule update --init
 
-COPY ./execroot/com_github_grpc_grpc/bazel-out/k8-fastbuild/bin/test/cpp/interop/interop_server .
-COPY ./execroot/com_github_grpc_grpc/bazel-out/k8-fastbuild/bin/test/cpp/interop/interop_client .
-
-WORKDIR /grpc/tools/dockerfile/observability-test/cpp
-
-COPY ./tools/dockerfile/observability-test/cpp/run.sh .
+RUN /grpc/tools/bazel --output_base=. build test/cpp/interop:interop_test
 
 ENTRYPOINT ["/grpc/tools/dockerfile/observability-test/cpp/run.sh"]
