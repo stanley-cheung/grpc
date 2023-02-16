@@ -16,7 +16,7 @@ FROM debian:bullseye
 
 ENV GRPC_VERBOSITY debug
 
-RUN apt-get update && apt-get install -y git
+RUN apt-get update && apt-get install -y clang curl git
 
 WORKDIR /grpc
 
