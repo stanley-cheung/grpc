@@ -1022,6 +1022,45 @@ bool InteropClient::DoCustomMetadata() {
   return true;
 }
 
+bool InteropClient::DoUnaryWithMetadata() {
+  const std::string kEchoInitialMetadataKey("x-grpc-test-echo-initial");
+  const std::string kInitialMetadataValue("test_initial_metadata_value");
+  const std::string kEchoTrailingBinMetadataKey(
+      "x-grpc-test-echo-trailing-bin");
+  const std::string kTrailingBinValue("\x0a\x0b\x0a\x0b\x0a\x0b");
+
+  {
+    gpr_log(GPR_DEBUG, "Sending RPC with custom metadata");
+    ClientContext context;
+    context.AddMetadata(kEchoInitialMetadataKey, kInitialMetadataValue);
+    context.AddMetadata(kEchoTrailingBinMetadataKey, kTrailingBinValue);
+    SimpleRequest request;
+    SimpleResponse response;
+    request.set_response_size(kLargeResponseSize);
+    std::string payload(kLargeRequestSize, '\0');
+    request.mutable_payload()->set_body(payload.c_str(), kLargeRequestSize);
+
+    Status s = serviceStub_.Get()->UnaryCall(&context, request, &response);
+    if (!AssertStatusOk(s, context.debug_error_string())) {
+      return false;
+    }
+
+    const auto& server_initial_metadata = context.GetServerInitialMetadata();
+    auto iter = server_initial_metadata.find(kEchoInitialMetadataKey);
+    GPR_ASSERT(iter != server_initial_metadata.end());
+    GPR_ASSERT(iter->second == kInitialMetadataValue);
+    const auto& server_trailing_metadata = context.GetServerTrailingMetadata();
+    iter = server_trailing_metadata.find(kEchoTrailingBinMetadataKey);
+    GPR_ASSERT(iter != server_trailing_metadata.end());
+    GPR_ASSERT(std::string(iter->second.begin(), iter->second.end()) ==
+               kTrailingBinValue);
+
+    gpr_log(GPR_DEBUG, "Done with unary_with_metadata");
+  }
+
+  return true;
+}
+
 std::tuple<bool, int32_t, std::string, std::string>
 InteropClient::PerformOneSoakTestIteration(
     const bool reset_channel,
