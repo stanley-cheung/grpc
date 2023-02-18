@@ -126,7 +126,8 @@ ABSL_FLAG(
     bool, log_metadata_and_status, false,
     "If set to 'true', will print received initial and trailing metadata, "
     "grpc-status and error message to the console, in a stable format.");
-ABSL_FLAG(int32_t, exporter_interval, 0, "Observability: exporter sleep interval");
+ABSL_FLAG(int32_t, exporter_interval, 0,
+          "Observability: exporter sleep interval");
 
 using grpc::testing::CreateChannelForTestCase;
 using grpc::testing::GetServiceAccountJsonKey;
@@ -334,7 +335,8 @@ int main(int argc, char** argv) {
       action.second();
     }
   } else if (absl::GetFlag(FLAGS_test_case).find(",")) {
-    std::vector<std::string> test_cases = absl::StrSplit(absl::GetFlag(FLAGS_test_case), ",");
+    std::vector<std::string> test_cases =
+        absl::StrSplit(absl::GetFlag(FLAGS_test_case), ',');
     for (const auto& test_case : test_cases) {
       if (actions.find(test_case) != actions.end()) {
         actions.find(test_case)->second();
@@ -357,7 +359,8 @@ int main(int argc, char** argv) {
   }
 
   if (absl::GetFlag(FLAGS_exporter_interval)) {
-    gpr_log(GPR_DEBUG, "Sleeping %ds before shutdown.", absl::GetFlag(FLAGS_exporter_interval));
+    gpr_log(GPR_DEBUG, "Sleeping %ds before shutdown.",
+            absl::GetFlag(FLAGS_exporter_interval));
     sleep(absl::GetFlag(FLAGS_exporter_interval));
   }
 
