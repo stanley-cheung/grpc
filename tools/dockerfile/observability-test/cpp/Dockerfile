@@ -12,9 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM debian:bullseye
-
-ENV GRPC_VERBOSITY debug
+FROM debian:bullseye as build
 
 RUN apt-get update && apt-get install -y clang curl git
 
@@ -24,6 +22,27 @@ COPY . .
 
 RUN git submodule update --init
 
-RUN /grpc/tools/bazel --output_base=. build test/cpp/interop:interop_test
+RUN /grpc/tools/bazel build test/cpp/interop:interop_test
+
+
+
+FROM debian:bullseye
+
+ENV GRPC_VERBOSITY debug
+
+
+WORKDIR /usr/share/grpc
+
+COPY --from=build /grpc/etc/roots.pem .
+
+WORKDIR /grpc/bazel-bin/test/cpp/interop
+
+COPY --from=build /grpc/bazel-bin/test/cpp/interop/interop_server .
+COPY --from=build /grpc/bazel-bin/test/cpp/interop/interop_client .
+
+WORKDIR /grpc/tools/dockerfile/observability-test/cpp
+
+COPY --from=build /grpc/tools/dockerfile/observability-test/cpp/run.sh .
+
 
 ENTRYPOINT ["/grpc/tools/dockerfile/observability-test/cpp/run.sh"]
