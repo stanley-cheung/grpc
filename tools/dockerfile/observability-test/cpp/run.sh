@@ -25,14 +25,17 @@ cd "$(dirname "$0")"/../..
 # For client: $2: server_host
 #             $3: server_port
 #             $4: observability_exporter_sleep_seconds
-#             $5: action
+#             $5: test_case
 
 if [ "$1" = "server" ] ; then
-  /grpc/bazel-bin/test/cpp/interop/interop_server --port $2
+  /grpc/bazel-bin/test/cpp/interop/interop_server \
+    --enable_observability=true --port $2
 
 elif [ "$1" = "client" ] ; then
-  /grpc/bazel-bin/test/cpp/interop/interop_client --server_host=$2 --server_port=$3 \
-    --exporter_interval=$4 --test_case=$5
+  /grpc/bazel-bin/test/cpp/interop/interop_client \
+    --enable_observability=true \
+    --server_host=$2 --server_port=$3 \
+    --observability_exporter_sleep_seconds=$4 --test_case=$5
 
 else
   echo "Invalid action $1"
