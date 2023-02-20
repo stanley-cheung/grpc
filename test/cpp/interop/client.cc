@@ -126,7 +126,11 @@ ABSL_FLAG(
     bool, log_metadata_and_status, false,
     "If set to 'true', will print received initial and trailing metadata, "
     "grpc-status and error message to the console, in a stable format.");
-ABSL_FLAG(int32_t, exporter_interval, 0, "Observability: exporter sleep interval");
+ABSL_FLAG(bool, enable_observability, false,
+          "Whether to enable GCP Observability");
+ABSL_FLAG(int32_t, observability_exporter_sleep_seconds, 0,
+          "Observability: number of seconds to sleep to export "
+          "observability data before closing client");
 
 using grpc::testing::CreateChannelForTestCase;
 using grpc::testing::GetServiceAccountJsonKey;
@@ -197,10 +201,12 @@ int main(int argc, char** argv) {
           absl::GetFlag(FLAGS_test_case).c_str());
   int ret = 0;
 
-  auto status = grpc::experimental::GcpObservabilityInit();
-  gpr_log(GPR_DEBUG, "GcpObservabilityInit() status_code: %d", status.code());
-  if (!status.ok()) {
-    return 1;
+  if (absl::GetFlag(FLAGS_enable_observability)) {
+    auto status = grpc::experimental::GcpObservabilityInit();
+    gpr_log(GPR_DEBUG, "GcpObservabilityInit() status_code: %d", status.code());
+    if (!status.ok()) {
+      return 1;
+    }
   }
 
   grpc::testing::ChannelCreationFunc channel_creation_func;
@@ -358,9 +364,10 @@ int main(int argc, char** argv) {
     ret = 1;
   }
 
-  if (absl::GetFlag(FLAGS_exporter_interval)) {
-    gpr_log(GPR_DEBUG, "Sleeping %ds before shutdown.", absl::GetFlag(FLAGS_exporter_interval));
-    sleep(absl::GetFlag(FLAGS_exporter_interval));
+  if (absl::GetFlag(FLAGS_enable_observability)) {
+    gpr_log(GPR_DEBUG, "Sleeping %ds before shutdown.",
+            absl::GetFlag(FLAGS_observability_exporter_sleep_seconds));
+    sleep(absl::GetFlag(FLAGS_observability_exporter_sleep_seconds));
   }
 
   return ret;

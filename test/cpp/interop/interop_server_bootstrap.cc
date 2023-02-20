@@ -16,15 +16,17 @@
 //
 //
 
+#include <grpcpp/ext/gcp_observability.h>
 #include <signal.h>
 
-#include <grpcpp/ext/gcp_observability.h>
-
+#include "absl/flags/flag.h"
 #include "test/core/util/test_config.h"
 #include "test/cpp/interop/server_helper.h"
 #include "test/cpp/util/test_config.h"
 
 gpr_atm grpc::testing::interop::g_got_sigint;
+
+ABSL_FLAG(bool, enable_observability, false, "Whether to enable GCP Observability");
 
 static void sigint_handler(int /*x*/) {
   gpr_atm_no_barrier_store(&grpc::testing::interop::g_got_sigint, true);
@@ -35,10 +37,12 @@ int main(int argc, char** argv) {
   grpc::testing::InitTest(&argc, &argv, true);
   signal(SIGINT, sigint_handler);
 
-  auto status = grpc::experimental::GcpObservabilityInit();
-  gpr_log(GPR_DEBUG, "GcpObservabilityInit() status_code: %d", status.code());
-  if (!status.ok()) {
-    return 1;
+  if (absl::GetFlag(FLAGS_enable_observability)) {
+    auto status = grpc::experimental::GcpObservabilityInit();
+    gpr_log(GPR_DEBUG, "GcpObservabilityInit() status_code: %d", status.code());
+    if (!status.ok()) {
+      return 1;
+    }
   }
 
   grpc::testing::interop::RunServer(
