@@ -368,6 +368,7 @@ int main(int argc, char** argv) {
     gpr_log(GPR_DEBUG, "Sleeping %ds before shutdown.",
             absl::GetFlag(FLAGS_observability_exporter_sleep_seconds));
     sleep(absl::GetFlag(FLAGS_observability_exporter_sleep_seconds));
+    auto status = grpc::experimental::GcpObservabilityClose();
   }
 
   return ret;
