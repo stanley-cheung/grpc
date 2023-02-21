@@ -28,6 +28,7 @@ RUN /grpc/tools/bazel build test/cpp/interop:interop_test
 
 FROM debian:bullseye
 
+ENV GRPC_TRACE environment_autodetect
 ENV GRPC_VERBOSITY debug
 
 
