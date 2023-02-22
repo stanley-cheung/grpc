@@ -69,7 +69,6 @@ class InteropClient {
   // Verifies Unicode and Whitespace is correctly processed in status message.
   bool DoSpecialStatusMessage();
   bool DoCustomMetadata();
-  bool DoUnaryWithMetadata();
   bool DoUnimplementedMethod();
   bool DoUnimplementedService();
   // all requests are sent to one server despite multiple servers are resolved

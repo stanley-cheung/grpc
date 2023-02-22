@@ -310,8 +310,6 @@ int main(int argc, char** argv) {
       std::bind(&grpc::testing::InteropClient::DoSpecialStatusMessage, &client);
   actions["custom_metadata"] =
       std::bind(&grpc::testing::InteropClient::DoCustomMetadata, &client);
-  actions["unary_with_metadata"] =
-      std::bind(&grpc::testing::InteropClient::DoUnaryWithMetadata, &client);
   actions["unimplemented_method"] =
       std::bind(&grpc::testing::InteropClient::DoUnimplementedMethod, &client);
   actions["unimplemented_service"] =
