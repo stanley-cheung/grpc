@@ -342,7 +342,8 @@ int main(int argc, char** argv) {
       action.second();
     }
   } else if (absl::GetFlag(FLAGS_test_case).find(",")) {
-    std::vector<std::string> test_cases = absl::StrSplit(absl::GetFlag(FLAGS_test_case), ",");
+    std::vector<std::string> test_cases =
+        absl::StrSplit(absl::GetFlag(FLAGS_test_case), ',');
     for (const auto& test_case : test_cases) {
       if (actions.find(test_case) != actions.end()) {
         actions.find(test_case)->second();
@@ -368,7 +369,7 @@ int main(int argc, char** argv) {
     gpr_log(GPR_DEBUG, "Sleeping %ds before shutdown.",
             absl::GetFlag(FLAGS_observability_exporter_sleep_seconds));
     sleep(absl::GetFlag(FLAGS_observability_exporter_sleep_seconds));
-    grpc::experimental::GcpObservabilityClose();
+    grpc::experimental::GcpObservabilityInit();
   }
 
   return ret;
