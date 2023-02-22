@@ -18,7 +18,7 @@ cd "$(dirname "$0")"/../..
 
 # TODO(stanleycheung): replace positional parameters with explicit parameters
 #
-# $1: server | client
+#             $1: server | client
 #
 # For server: $2: server_port
 #
@@ -38,6 +38,6 @@ elif [ "$1" = "client" ] ; then
     --observability_exporter_sleep_seconds=$4 --test_case=$5
 
 else
-  echo "Invalid action $1"
+  echo "Invalid action: $1"
   exit 1
 fi
