@@ -20,20 +20,22 @@ WORKDIR /grpc
 
 COPY . .
 
-RUN git submodule update --init
+RUN git submodule update --init --recursive && \
+  /grpc/tools/bazel build test/cpp/interop:interop_test
 
-RUN /grpc/tools/bazel build test/cpp/interop:interop_test
 
 
 
 FROM debian:bullseye
 
+ENV GRPC_TRACE environment_autodetect
 ENV GRPC_VERBOSITY debug
 
 
 WORKDIR /usr/share/grpc
 
 COPY --from=build /grpc/etc/roots.pem .
+
 
 WORKDIR /grpc/bazel-bin/test/cpp/interop
 
@@ -43,6 +45,5 @@ COPY --from=build /grpc/bazel-bin/test/cpp/interop/interop_client .
 WORKDIR /grpc/tools/dockerfile/observability-test/cpp
 
 COPY --from=build /grpc/tools/dockerfile/observability-test/cpp/run.sh .
-
 
 ENTRYPOINT ["/grpc/tools/dockerfile/observability-test/cpp/run.sh"]
