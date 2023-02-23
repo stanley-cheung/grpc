@@ -20,12 +20,14 @@
 #include <unordered_map>
 
 #include "absl/flags/flag.h"
+#include "absl/strings/str_split.h"
 
 #include <grpc/grpc.h>
 #include <grpc/support/alloc.h>
 #include <grpc/support/log.h>
 #include <grpcpp/channel.h>
 #include <grpcpp/client_context.h>
+#include <grpcpp/ext/gcp_observability.h>
 
 #include "src/core/lib/gpr/string.h"
 #include "src/core/lib/gprpp/crash.h"
@@ -124,6 +126,8 @@ ABSL_FLAG(
     bool, log_metadata_and_status, false,
     "If set to 'true', will print received initial and trailing metadata, "
     "grpc-status and error message to the console, in a stable format.");
+ABSL_FLAG(bool, enable_observability, false,
+          "Whether to enable GCP Observability");
 
 using grpc::testing::CreateChannelForTestCase;
 using grpc::testing::GetServiceAccountJsonKey;
@@ -193,6 +197,14 @@ int main(int argc, char** argv) {
   gpr_log(GPR_INFO, "Testing these cases: %s",
           absl::GetFlag(FLAGS_test_case).c_str());
   int ret = 0;
+
+  if (absl::GetFlag(FLAGS_enable_observability)) {
+    auto status = grpc::experimental::GcpObservabilityInit();
+    gpr_log(GPR_DEBUG, "GcpObservabilityInit() status_code: %d", status.code());
+    if (!status.ok()) {
+      return 1;
+    }
+  }
 
   grpc::testing::ChannelCreationFunc channel_creation_func;
   std::string test_case = absl::GetFlag(FLAGS_test_case);
@@ -324,6 +336,16 @@ int main(int argc, char** argv) {
     for (const auto& action : actions) {
       action.second();
     }
+  } else if (absl::GetFlag(FLAGS_test_case).find(",")) {
+    std::vector<std::string> test_cases = absl::StrSplit(absl::GetFlag(FLAGS_test_case), ",");
+    for (const auto& test_case : test_cases) {
+      if (actions.find(test_case) != actions.end()) {
+        actions.find(test_case)->second();
+      } else {
+        gpr_log(GPR_ERROR, "Unsupported test case %s.", test_case.c_str());
+        ret = 1;
+      }
+    }
   } else if (actions.find(absl::GetFlag(FLAGS_test_case)) != actions.end()) {
     actions.find(absl::GetFlag(FLAGS_test_case))->second();
   } else {
@@ -335,6 +357,15 @@ int main(int argc, char** argv) {
     gpr_log(GPR_ERROR, "Unsupported test case %s. Valid options are\n%s",
             absl::GetFlag(FLAGS_test_case).c_str(), test_cases.c_str());
     ret = 1;
+  }
+
+  if (absl::GetFlag(FLAGS_enable_observability)) {
+    // TODO(stanleycheung): remove this once the observability exporter plugin is able to
+    //                      gracefully flush observability data to cloud at shutdown
+    const int observability_exporter_sleep_seconds = 65;
+    gpr_log(GPR_DEBUG, "Sleeping %ds before shutdown.", observability_exporter_sleep_seconds);
+    sleep(observability_exporter_sleep_seconds);
+    grpc::experimental::GcpObservabilityClose();
   }
 
   return ret;
