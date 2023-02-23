@@ -12,12 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
+#
+# Stage 1: Build the interop test client and server
+#
+
 FROM debian:bullseye as build
 
 RUN apt-get update && apt-get install -y clang curl git
 
 WORKDIR /grpc
-
 COPY . .
 
 RUN git submodule update --init --recursive && \
@@ -25,6 +29,13 @@ RUN git submodule update --init --recursive && \
 
 
 
+#
+# Stage 2:
+#
+# - Copy only the necessary files to reduce Docker image size.
+# - Have an ENTRYPOINT script which will launch the interop test client or server
+#   with the given parameters.
+#
 
 FROM debian:bullseye
 
@@ -33,17 +44,14 @@ ENV GRPC_VERBOSITY debug
 
 
 WORKDIR /usr/share/grpc
-
 COPY --from=build /grpc/etc/roots.pem .
 
 
 WORKDIR /grpc/bazel-bin/test/cpp/interop
-
 COPY --from=build /grpc/bazel-bin/test/cpp/interop/interop_server .
 COPY --from=build /grpc/bazel-bin/test/cpp/interop/interop_client .
 
 WORKDIR /grpc/tools/dockerfile/observability-test/cpp
-
 COPY --from=build /grpc/tools/dockerfile/observability-test/cpp/run.sh .
 
 ENTRYPOINT ["/grpc/tools/dockerfile/observability-test/cpp/run.sh"]
