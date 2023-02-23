@@ -128,9 +128,6 @@ ABSL_FLAG(
     "grpc-status and error message to the console, in a stable format.");
 ABSL_FLAG(bool, enable_observability, false,
           "Whether to enable GCP Observability");
-ABSL_FLAG(int32_t, observability_exporter_sleep_seconds, 0,
-          "Observability: number of seconds to sleep to export "
-          "observability data before closing client");
 
 using grpc::testing::CreateChannelForTestCase;
 using grpc::testing::GetServiceAccountJsonKey;
@@ -363,9 +360,11 @@ int main(int argc, char** argv) {
   }
 
   if (absl::GetFlag(FLAGS_enable_observability)) {
-    gpr_log(GPR_DEBUG, "Sleeping %ds before shutdown.",
-            absl::GetFlag(FLAGS_observability_exporter_sleep_seconds));
-    sleep(absl::GetFlag(FLAGS_observability_exporter_sleep_seconds));
+    // TODO(stanleycheung): remove this once the observability exporter plugin is able to
+    //                      gracefully flush observability data to cloud at shutdown
+    const int observability_exporter_sleep_seconds = 65;
+    gpr_log(GPR_DEBUG, "Sleeping %ds before shutdown.", observability_exporter_sleep_seconds);
+    sleep(observability_exporter_sleep_seconds);
     grpc::experimental::GcpObservabilityClose();
   }
 
