@@ -337,7 +337,8 @@ int main(int argc, char** argv) {
       action.second();
     }
   } else if (absl::GetFlag(FLAGS_test_case).find(",")) {
-    std::vector<std::string> test_cases = absl::StrSplit(absl::GetFlag(FLAGS_test_case), ",");
+    std::vector<std::string> test_cases =
+        absl::StrSplit(absl::GetFlag(FLAGS_test_case), ',');
     for (const auto& test_case : test_cases) {
       if (actions.find(test_case) != actions.end()) {
         actions.find(test_case)->second();
@@ -360,10 +361,13 @@ int main(int argc, char** argv) {
   }
 
   if (absl::GetFlag(FLAGS_enable_observability)) {
-    // TODO(stanleycheung): remove this once the observability exporter plugin is able to
-    //                      gracefully flush observability data to cloud at shutdown
+    // TODO(stanleycheung): remove this once the observability exporter plugin
+    // is able to
+    //                      gracefully flush observability data to cloud at
+    //                      shutdown
     const int observability_exporter_sleep_seconds = 65;
-    gpr_log(GPR_DEBUG, "Sleeping %ds before shutdown.", observability_exporter_sleep_seconds);
+    gpr_log(GPR_DEBUG, "Sleeping %ds before shutdown.",
+            observability_exporter_sleep_seconds);
     sleep(observability_exporter_sleep_seconds);
     grpc::experimental::GcpObservabilityClose();
   }
