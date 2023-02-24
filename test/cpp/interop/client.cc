@@ -86,6 +86,8 @@ ABSL_FLAG(
     //"unimplemented_service: client calls an unimplemented service;\n"
     //
 );
+ABSL_FLAG(int32_t, num_times, 1,
+          "Number of times to run the test case");
 ABSL_FLAG(std::string, default_service_account, "",
           "Email of GCE default service account");
 ABSL_FLAG(std::string, service_account_key_file, "",
@@ -334,20 +336,14 @@ int main(int argc, char** argv) {
 
   if (absl::GetFlag(FLAGS_test_case) == "all") {
     for (const auto& action : actions) {
-      action.second();
-    }
-  } else if (absl::GetFlag(FLAGS_test_case).find(",")) {
-    std::vector<std::string> test_cases = absl::StrSplit(absl::GetFlag(FLAGS_test_case), ",");
-    for (const auto& test_case : test_cases) {
-      if (actions.find(test_case) != actions.end()) {
-        actions.find(test_case)->second();
-      } else {
-        gpr_log(GPR_ERROR, "Unsupported test case %s.", test_case.c_str());
-        ret = 1;
+      for (int i = 0; i < absl::GetFlag(FLAGS_num_times); i++) {
+        action.second();
       }
     }
   } else if (actions.find(absl::GetFlag(FLAGS_test_case)) != actions.end()) {
-    actions.find(absl::GetFlag(FLAGS_test_case))->second();
+    for (int i = 0; i < absl::GetFlag(FLAGS_num_times); i++) {
+      actions.find(absl::GetFlag(FLAGS_test_case))->second();
+    }
   } else {
     std::string test_cases;
     for (const auto& action : actions) {
@@ -360,12 +356,12 @@ int main(int argc, char** argv) {
   }
 
   if (absl::GetFlag(FLAGS_enable_observability)) {
+    grpc::experimental::GcpObservabilityClose();
     // TODO(stanleycheung): remove this once the observability exporter plugin is able to
     //                      gracefully flush observability data to cloud at shutdown
     const int observability_exporter_sleep_seconds = 65;
     gpr_log(GPR_DEBUG, "Sleeping %ds before shutdown.", observability_exporter_sleep_seconds);
     sleep(observability_exporter_sleep_seconds);
-    grpc::experimental::GcpObservabilityClose();
   }
 
   return ret;
