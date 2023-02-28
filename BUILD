@@ -2257,7 +2257,6 @@ grpc_cc_library(
     ],
     language = "c++",
     tags = ["nofixdeps"],
-    visibility = ["@grpc:grpcpp_gcp_observability"],
     deps = [
         "//src/cpp/ext/gcp:observability",
     ],
