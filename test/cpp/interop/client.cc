@@ -361,7 +361,9 @@ int main(int argc, char** argv) {
     //                      gracefully flush observability data to cloud at shutdown
     const int observability_exporter_sleep_seconds = 65;
     gpr_log(GPR_DEBUG, "Sleeping %ds before shutdown.", observability_exporter_sleep_seconds);
-    sleep(observability_exporter_sleep_seconds);
+    gpr_sleep_until(
+        gpr_time_add(gpr_now(GPR_CLOCK_REALTIME),
+                     gpr_time_from_seconds(observability_exporter_sleep_seconds, GPR_TIMESPAN)));
   }
 
   return ret;
