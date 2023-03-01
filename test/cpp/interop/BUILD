@@ -360,7 +360,7 @@ grpc_cc_binary(
 grpc_cc_binary(
     name = "interop_observability_server",
     srcs = [
-        "interop_server_bootstrap.cc",
+        "interop_observability_server_bootstrap.cc",
     ],
     external_deps = [
         "absl/flags:flag",
@@ -377,7 +377,7 @@ grpc_cc_binary(
 grpc_cc_library(
     name = "interop_observability_client_main",
     srcs = [
-        "client.cc",
+        "observability_client.cc",
     ],
     external_deps = [
         "absl/flags:flag",
