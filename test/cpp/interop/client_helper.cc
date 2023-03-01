@@ -356,42 +356,35 @@ int RunClient() {
     };
   }
 
-  InteropClient client(
-      channel_creation_func, true,
-      absl::GetFlag(FLAGS_do_not_abort_on_transient_failures));
+  InteropClient client(channel_creation_func, true,
+                       absl::GetFlag(FLAGS_do_not_abort_on_transient_failures));
 
   std::unordered_map<std::string, std::function<bool()>> actions;
-  actions["empty_unary"] =
-      std::bind(&InteropClient::DoEmpty, &client);
-  actions["large_unary"] =
-      std::bind(&InteropClient::DoLargeUnary, &client);
-  actions["server_compressed_unary"] = std::bind(
-      &InteropClient::DoServerCompressedUnary, &client);
-  actions["client_compressed_unary"] = std::bind(
-      &InteropClient::DoClientCompressedUnary, &client);
+  actions["empty_unary"] = std::bind(&InteropClient::DoEmpty, &client);
+  actions["large_unary"] = std::bind(&InteropClient::DoLargeUnary, &client);
+  actions["server_compressed_unary"] =
+      std::bind(&InteropClient::DoServerCompressedUnary, &client);
+  actions["client_compressed_unary"] =
+      std::bind(&InteropClient::DoClientCompressedUnary, &client);
   actions["client_streaming"] =
       std::bind(&InteropClient::DoRequestStreaming, &client);
   actions["server_streaming"] =
       std::bind(&InteropClient::DoResponseStreaming, &client);
-  actions["server_compressed_streaming"] = std::bind(
-      &InteropClient::DoServerCompressedStreaming, &client);
-  actions["client_compressed_streaming"] = std::bind(
-      &InteropClient::DoClientCompressedStreaming, &client);
-  actions["slow_consumer"] = std::bind(
-      &InteropClient::DoResponseStreamingWithSlowConsumer,
-      &client);
-  actions["half_duplex"] =
-      std::bind(&InteropClient::DoHalfDuplex, &client);
-  actions["ping_pong"] =
-      std::bind(&InteropClient::DoPingPong, &client);
+  actions["server_compressed_streaming"] =
+      std::bind(&InteropClient::DoServerCompressedStreaming, &client);
+  actions["client_compressed_streaming"] =
+      std::bind(&InteropClient::DoClientCompressedStreaming, &client);
+  actions["slow_consumer"] =
+      std::bind(&InteropClient::DoResponseStreamingWithSlowConsumer, &client);
+  actions["half_duplex"] = std::bind(&InteropClient::DoHalfDuplex, &client);
+  actions["ping_pong"] = std::bind(&InteropClient::DoPingPong, &client);
   actions["cancel_after_begin"] =
       std::bind(&InteropClient::DoCancelAfterBegin, &client);
-  actions["cancel_after_first_response"] = std::bind(
-      &InteropClient::DoCancelAfterFirstResponse, &client);
-  actions["timeout_on_sleeping_server"] = std::bind(
-      &InteropClient::DoTimeoutOnSleepingServer, &client);
-  actions["empty_stream"] =
-      std::bind(&InteropClient::DoEmptyStream, &client);
+  actions["cancel_after_first_response"] =
+      std::bind(&InteropClient::DoCancelAfterFirstResponse, &client);
+  actions["timeout_on_sleeping_server"] =
+      std::bind(&InteropClient::DoTimeoutOnSleepingServer, &client);
+  actions["empty_stream"] = std::bind(&InteropClient::DoEmptyStream, &client);
   actions["pick_first_unary"] =
       std::bind(&InteropClient::DoPickFirstUnary, &client);
   if (absl::GetFlag(FLAGS_use_tls)) {
@@ -399,22 +392,20 @@ int RunClient() {
         std::bind(&InteropClient::DoComputeEngineCreds, &client,
                   absl::GetFlag(FLAGS_default_service_account),
                   absl::GetFlag(FLAGS_oauth_scope));
-    actions["jwt_token_creds"] =
-        std::bind(&InteropClient::DoJwtTokenCreds, &client,
-                  GetServiceAccountJsonKey());
+    actions["jwt_token_creds"] = std::bind(&InteropClient::DoJwtTokenCreds,
+                                           &client, GetServiceAccountJsonKey());
     actions["oauth2_auth_token"] =
         std::bind(&InteropClient::DoOauth2AuthToken, &client,
                   absl::GetFlag(FLAGS_default_service_account),
                   absl::GetFlag(FLAGS_oauth_scope));
-    actions["per_rpc_creds"] =
-        std::bind(&InteropClient::DoPerRpcCreds, &client,
-                  GetServiceAccountJsonKey());
+    actions["per_rpc_creds"] = std::bind(&InteropClient::DoPerRpcCreds, &client,
+                                         GetServiceAccountJsonKey());
   }
   if (absl::GetFlag(FLAGS_custom_credentials_type) ==
       "google_default_credentials") {
     actions["google_default_credentials"] =
-        std::bind(&InteropClient::DoGoogleDefaultCredentials,
-                  &client, absl::GetFlag(FLAGS_default_service_account));
+        std::bind(&InteropClient::DoGoogleDefaultCredentials, &client,
+                  absl::GetFlag(FLAGS_default_service_account));
   }
   actions["status_code_and_message"] =
       std::bind(&InteropClient::DoStatusWithMessage, &client);
@@ -434,8 +425,8 @@ int RunClient() {
       absl::GetFlag(FLAGS_soak_min_time_ms_between_rpcs),
       absl::GetFlag(FLAGS_soak_overall_timeout_seconds));
   actions["rpc_soak"] = std::bind(
-      &InteropClient::DoRpcSoakTest, &client,
-      absl::GetFlag(FLAGS_server_host), absl::GetFlag(FLAGS_soak_iterations),
+      &InteropClient::DoRpcSoakTest, &client, absl::GetFlag(FLAGS_server_host),
+      absl::GetFlag(FLAGS_soak_iterations),
       absl::GetFlag(FLAGS_soak_max_failures),
       absl::GetFlag(FLAGS_soak_per_iteration_max_acceptable_latency_ms),
       absl::GetFlag(FLAGS_soak_min_time_ms_between_rpcs),
