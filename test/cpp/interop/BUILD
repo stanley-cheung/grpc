@@ -358,7 +358,7 @@ grpc_cc_binary(
 )
 
 grpc_cc_binary(
-    name = "interop_server_observability",
+    name = "interop_observability_server",
     srcs = [
         "interop_server_bootstrap.cc",
     ],
@@ -375,7 +375,7 @@ grpc_cc_binary(
 )
 
 grpc_cc_library(
-    name = "interop_client_observability_main",
+    name = "interop_observability_client_main",
     srcs = [
         "client.cc",
     ],
@@ -390,21 +390,21 @@ grpc_cc_library(
 )
 
 grpc_cc_binary(
-    name = "interop_client_observability",
+    name = "interop_observability_client",
     language = "C++",
     deps = [
-        ":interop_client_observability_main",
+        ":interop_observability_client_main",
         "//:grpc++",
         "//test/cpp/util:test_util",
     ],
 )
 
 grpc_cc_binary(
-    name = "interop_test_observability",
+    name = "interop_observability_test",
     srcs = ["interop_test.cc"],
     data = [
-        ":interop_client_observability",
-        ":interop_server_observability",
+        ":interop_observability_client",
+        ":interop_observability_server",
     ],
     external_deps = [
         "absl/flags:flag",
