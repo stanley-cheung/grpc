@@ -23,11 +23,16 @@
 #include <memory>
 #include <unordered_map>
 
+#include "absl/flags/declare.h"
+#include "absl/flags/flag.h"
+
 #include <grpcpp/channel.h>
 #include <grpcpp/client_context.h>
 
 #include "src/core/lib/surface/call_test_only.h"
 #include "src/core/lib/transport/transport.h"
+
+ABSL_DECLARE_FLAG(std::string, test_case);
 
 namespace grpc {
 namespace testing {

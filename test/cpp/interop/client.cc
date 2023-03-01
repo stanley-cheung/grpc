@@ -34,8 +34,6 @@
 #include "test/cpp/interop/interop_client.h"
 #include "test/cpp/util/test_config.h"
 
-ABSL_FLAG(bool, use_alts, false,
-          "Whether to use alts. Enable alts will disable tls.");
 ABSL_FLAG(bool, use_tls, false, "Whether to use tls.");
 ABSL_FLAG(std::string, custom_credentials_type, "",
           "User provided credentials type.");
@@ -44,46 +42,6 @@ ABSL_FLAG(int32_t, server_port, 0, "Server port.");
 ABSL_FLAG(std::string, server_host, "localhost", "Server host to connect to");
 ABSL_FLAG(std::string, server_host_override, "",
           "Override the server host which is sent in HTTP header");
-ABSL_FLAG(
-    std::string, test_case, "large_unary",
-    "Configure different test cases. Valid options are:\n\n"
-    "all : all test cases;\n"
-
-    // TODO(veblush): Replace the help message with the following full message
-    // once Abseil fixes the flag-help compiler error on Windows. (b/171659833)
-    //
-    //"cancel_after_begin : cancel stream after starting it;\n"
-    //"cancel_after_first_response: cancel on first response;\n"
-    //"channel_soak: sends 'soak_iterations' rpcs, rebuilds channel each
-    // time;\n" "client_compressed_streaming : compressed request streaming with
-    //" "client_compressed_unary : single compressed request;\n"
-    //"client_streaming : request streaming with single response;\n"
-    //"compute_engine_creds: large_unary with compute engine auth;\n"
-    //"custom_metadata: server will echo custom metadata;\n"
-    //"empty_stream : bi-di stream with no request/response;\n"
-    //"empty_unary : empty (zero bytes) request and response;\n"
-    //"google_default_credentials: large unary using GDC;\n"
-    //"half_duplex : half-duplex streaming;\n"
-    //"jwt_token_creds: large_unary with JWT token auth;\n"
-    //"large_unary : single request and (large) response;\n"
-    //"long_lived_channel: sends large_unary rpcs over a long-lived channel;\n"
-    //"oauth2_auth_token: raw oauth2 access token auth;\n"
-    //"per_rpc_creds: raw oauth2 access token on a single rpc;\n"
-    //"ping_pong : full-duplex streaming;\n"
-    //"response streaming;\n"
-    //"rpc_soak: 'sends soak_iterations' large_unary rpcs;\n"
-    //"server_compressed_streaming : single request with compressed "
-    //"server_compressed_unary : single compressed response;\n"
-    //"server_streaming : single request with response streaming;\n"
-    //"slow_consumer : single request with response streaming with "
-    //"slow client consumer;\n"
-    //"special_status_message: verify Unicode and whitespace in status
-    // message;\n" "status_code_and_message: verify status code & message;\n"
-    //"timeout_on_sleeping_server: deadline exceeds on stream;\n"
-    //"unimplemented_method: client calls an unimplemented method;\n"
-    //"unimplemented_service: client calls an unimplemented service;\n"
-    //
-);
 ABSL_FLAG(std::string, default_service_account, "",
           "Email of GCE default service account");
 ABSL_FLAG(std::string, service_account_key_file, "",

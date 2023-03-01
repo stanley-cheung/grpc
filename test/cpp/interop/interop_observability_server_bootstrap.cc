@@ -18,9 +18,10 @@
 
 #include <signal.h>
 
+#include "absl/flags/flag.h"
+
 #include <grpcpp/ext/gcp_observability.h>
 
-#include "absl/flags/flag.h"
 #include "test/core/util/test_config.h"
 #include "test/cpp/interop/server_helper.h"
 #include "test/cpp/util/test_config.h"
