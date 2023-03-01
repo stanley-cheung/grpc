@@ -25,7 +25,7 @@ WORKDIR /grpc
 COPY . .
 
 RUN git submodule update --init --recursive && \
-  /grpc/tools/bazel build test/cpp/interop:interop_test
+  /grpc/tools/bazel build test/cpp/interop:interop_test_observability
 
 
 
