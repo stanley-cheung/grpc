@@ -31,6 +31,7 @@
 
 #include "src/core/lib/surface/call_test_only.h"
 #include "src/core/lib/transport/transport.h"
+#include "test/cpp/interop/interop_client.h"
 
 ABSL_DECLARE_FLAG(bool, use_alts);
 ABSL_DECLARE_FLAG(bool, use_tls);
@@ -69,6 +70,8 @@ std::shared_ptr<Channel> CreateChannelForTestCase(
     std::vector<
         std::unique_ptr<experimental::ClientInterceptorFactoryInterface>>
         interceptor_creators = {});
+
+int RunClient();
 
 class InteropClientContextInspector {
  public:

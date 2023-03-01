@@ -264,5 +264,212 @@ void MetadataAndStatusLoggerInterceptor::Intercept(
   methods->Proceed();
 }
 
+// Parse the contents of FLAGS_additional_metadata into a map. Allow
+// alphanumeric characters and dashes in keys, and any character but semicolons
+// in values. Convert keys to lowercase. On failure, log an error and return
+// false.
+bool ParseAdditionalMetadataFlag(
+    const std::string& flag,
+    std::multimap<std::string, std::string>* additional_metadata) {
+  size_t start_pos = 0;
+  while (start_pos < flag.length()) {
+    size_t colon_pos = flag.find(':', start_pos);
+    if (colon_pos == std::string::npos) {
+      gpr_log(GPR_ERROR,
+              "Couldn't parse metadata flag: extra characters at end of flag");
+      return false;
+    }
+    size_t semicolon_pos = flag.find(';', colon_pos);
+
+    std::string key = flag.substr(start_pos, colon_pos - start_pos);
+    std::string value =
+        flag.substr(colon_pos + 1, semicolon_pos - colon_pos - 1);
+
+    constexpr char alphanum_and_hyphen[] =
+        "-0123456789"
+        "abcdefghijklmnopqrstuvwxyz"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    if (key.find_first_not_of(alphanum_and_hyphen) != std::string::npos) {
+      gpr_log(GPR_ERROR,
+              "Couldn't parse metadata flag: key contains characters other "
+              "than alphanumeric and hyphens: %s",
+              key.c_str());
+      return false;
+    }
+
+    // Convert to lowercase.
+    for (char& c : key) {
+      if (c >= 'A' && c <= 'Z') {
+        c += ('a' - 'A');
+      }
+    }
+
+    gpr_log(GPR_INFO, "Adding additional metadata with key %s and value %s",
+            key.c_str(), value.c_str());
+    additional_metadata->insert({key, value});
+
+    if (semicolon_pos == std::string::npos) {
+      break;
+    } else {
+      start_pos = semicolon_pos + 1;
+    }
+  }
+
+  return true;
+}
+
+int RunClient() {
+  int ret = 0;
+
+  grpc::testing::ChannelCreationFunc channel_creation_func;
+  std::string test_case = absl::GetFlag(FLAGS_test_case);
+  if (absl::GetFlag(FLAGS_additional_metadata).empty()) {
+    channel_creation_func = [test_case]() {
+      std::vector<std::unique_ptr<
+          grpc::experimental::ClientInterceptorFactoryInterface>>
+          factories;
+      if (absl::GetFlag(FLAGS_log_metadata_and_status)) {
+        factories.emplace_back(
+            new grpc::testing::MetadataAndStatusLoggerInterceptorFactory());
+      }
+      return CreateChannelForTestCase(test_case, std::move(factories));
+    };
+  } else {
+    std::multimap<std::string, std::string> additional_metadata;
+    if (!ParseAdditionalMetadataFlag(absl::GetFlag(FLAGS_additional_metadata),
+                                     &additional_metadata)) {
+      return 1;
+    }
+
+    channel_creation_func = [test_case, additional_metadata]() {
+      std::vector<std::unique_ptr<
+          grpc::experimental::ClientInterceptorFactoryInterface>>
+          factories;
+      factories.emplace_back(
+          new grpc::testing::AdditionalMetadataInterceptorFactory(
+              additional_metadata));
+      if (absl::GetFlag(FLAGS_log_metadata_and_status)) {
+        factories.emplace_back(
+            new grpc::testing::MetadataAndStatusLoggerInterceptorFactory());
+      }
+      return CreateChannelForTestCase(test_case, std::move(factories));
+    };
+  }
+
+  InteropClient client(
+      channel_creation_func, true,
+      absl::GetFlag(FLAGS_do_not_abort_on_transient_failures));
+
+  std::unordered_map<std::string, std::function<bool()>> actions;
+  actions["empty_unary"] =
+      std::bind(&InteropClient::DoEmpty, &client);
+  actions["large_unary"] =
+      std::bind(&InteropClient::DoLargeUnary, &client);
+  actions["server_compressed_unary"] = std::bind(
+      &InteropClient::DoServerCompressedUnary, &client);
+  actions["client_compressed_unary"] = std::bind(
+      &InteropClient::DoClientCompressedUnary, &client);
+  actions["client_streaming"] =
+      std::bind(&InteropClient::DoRequestStreaming, &client);
+  actions["server_streaming"] =
+      std::bind(&InteropClient::DoResponseStreaming, &client);
+  actions["server_compressed_streaming"] = std::bind(
+      &InteropClient::DoServerCompressedStreaming, &client);
+  actions["client_compressed_streaming"] = std::bind(
+      &InteropClient::DoClientCompressedStreaming, &client);
+  actions["slow_consumer"] = std::bind(
+      &InteropClient::DoResponseStreamingWithSlowConsumer,
+      &client);
+  actions["half_duplex"] =
+      std::bind(&InteropClient::DoHalfDuplex, &client);
+  actions["ping_pong"] =
+      std::bind(&InteropClient::DoPingPong, &client);
+  actions["cancel_after_begin"] =
+      std::bind(&InteropClient::DoCancelAfterBegin, &client);
+  actions["cancel_after_first_response"] = std::bind(
+      &InteropClient::DoCancelAfterFirstResponse, &client);
+  actions["timeout_on_sleeping_server"] = std::bind(
+      &InteropClient::DoTimeoutOnSleepingServer, &client);
+  actions["empty_stream"] =
+      std::bind(&InteropClient::DoEmptyStream, &client);
+  actions["pick_first_unary"] =
+      std::bind(&InteropClient::DoPickFirstUnary, &client);
+  if (absl::GetFlag(FLAGS_use_tls)) {
+    actions["compute_engine_creds"] =
+        std::bind(&InteropClient::DoComputeEngineCreds, &client,
+                  absl::GetFlag(FLAGS_default_service_account),
+                  absl::GetFlag(FLAGS_oauth_scope));
+    actions["jwt_token_creds"] =
+        std::bind(&InteropClient::DoJwtTokenCreds, &client,
+                  GetServiceAccountJsonKey());
+    actions["oauth2_auth_token"] =
+        std::bind(&InteropClient::DoOauth2AuthToken, &client,
+                  absl::GetFlag(FLAGS_default_service_account),
+                  absl::GetFlag(FLAGS_oauth_scope));
+    actions["per_rpc_creds"] =
+        std::bind(&InteropClient::DoPerRpcCreds, &client,
+                  GetServiceAccountJsonKey());
+  }
+  if (absl::GetFlag(FLAGS_custom_credentials_type) ==
+      "google_default_credentials") {
+    actions["google_default_credentials"] =
+        std::bind(&InteropClient::DoGoogleDefaultCredentials,
+                  &client, absl::GetFlag(FLAGS_default_service_account));
+  }
+  actions["status_code_and_message"] =
+      std::bind(&InteropClient::DoStatusWithMessage, &client);
+  actions["special_status_message"] =
+      std::bind(&InteropClient::DoSpecialStatusMessage, &client);
+  actions["custom_metadata"] =
+      std::bind(&InteropClient::DoCustomMetadata, &client);
+  actions["unimplemented_method"] =
+      std::bind(&InteropClient::DoUnimplementedMethod, &client);
+  actions["unimplemented_service"] =
+      std::bind(&InteropClient::DoUnimplementedService, &client);
+  actions["channel_soak"] = std::bind(
+      &InteropClient::DoChannelSoakTest, &client,
+      absl::GetFlag(FLAGS_server_host), absl::GetFlag(FLAGS_soak_iterations),
+      absl::GetFlag(FLAGS_soak_max_failures),
+      absl::GetFlag(FLAGS_soak_per_iteration_max_acceptable_latency_ms),
+      absl::GetFlag(FLAGS_soak_min_time_ms_between_rpcs),
+      absl::GetFlag(FLAGS_soak_overall_timeout_seconds));
+  actions["rpc_soak"] = std::bind(
+      &InteropClient::DoRpcSoakTest, &client,
+      absl::GetFlag(FLAGS_server_host), absl::GetFlag(FLAGS_soak_iterations),
+      absl::GetFlag(FLAGS_soak_max_failures),
+      absl::GetFlag(FLAGS_soak_per_iteration_max_acceptable_latency_ms),
+      absl::GetFlag(FLAGS_soak_min_time_ms_between_rpcs),
+      absl::GetFlag(FLAGS_soak_overall_timeout_seconds));
+  actions["long_lived_channel"] =
+      std::bind(&InteropClient::DoLongLivedChannelTest, &client,
+                absl::GetFlag(FLAGS_soak_iterations),
+                absl::GetFlag(FLAGS_iteration_interval));
+
+  UpdateActions(&actions);
+
+  if (absl::GetFlag(FLAGS_test_case) == "all") {
+    for (const auto& action : actions) {
+      for (int i = 0; i < absl::GetFlag(FLAGS_num_times); i++) {
+        action.second();
+      }
+    }
+  } else if (actions.find(absl::GetFlag(FLAGS_test_case)) != actions.end()) {
+    for (int i = 0; i < absl::GetFlag(FLAGS_num_times); i++) {
+      actions.find(absl::GetFlag(FLAGS_test_case))->second();
+    }
+  } else {
+    std::string test_cases;
+    for (const auto& action : actions) {
+      if (!test_cases.empty()) test_cases += "\n";
+      test_cases += action.first;
+    }
+    gpr_log(GPR_ERROR, "Unsupported test case %s. Valid options are\n%s",
+            absl::GetFlag(FLAGS_test_case).c_str(), test_cases.c_str());
+    ret = 1;
+  }
+
+  return ret;
+}
+
 }  // namespace testing
 }  // namespace grpc
