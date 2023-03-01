@@ -28,11 +28,11 @@ cd "$(dirname "$0")"/../..
 #             $5: num_times
 
 if [ "$1" = "server" ] ; then
-  /grpc/bazel-bin/test/cpp/interop/interop_server \
+  /grpc/bazel-bin/test/cpp/interop/interop_observability_server \
     --enable_observability=true --port $2
 
 elif [ "$1" = "client" ] ; then
-  /grpc/bazel-bin/test/cpp/interop/interop_client \
+  /grpc/bazel-bin/test/cpp/interop/interop_observability_client \
     --enable_observability=true \
     --server_host=$2 --server_port=$3 \
     --test_case=$4 --num_times=$5

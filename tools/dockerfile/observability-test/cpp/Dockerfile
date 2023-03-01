@@ -48,8 +48,8 @@ COPY --from=build /grpc/etc/roots.pem .
 
 
 WORKDIR /grpc/bazel-bin/test/cpp/interop
-COPY --from=build /grpc/bazel-bin/test/cpp/interop/interop_server .
-COPY --from=build /grpc/bazel-bin/test/cpp/interop/interop_client .
+COPY --from=build /grpc/bazel-bin/test/cpp/interop/interop_observability_server .
+COPY --from=build /grpc/bazel-bin/test/cpp/interop/interop_observability_client .
 
 WORKDIR /grpc/tools/dockerfile/observability-test/cpp
 COPY --from=build /grpc/tools/dockerfile/observability-test/cpp/run.sh .
