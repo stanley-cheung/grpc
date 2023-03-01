@@ -85,8 +85,7 @@ ABSL_FLAG(
     //"unimplemented_service: client calls an unimplemented service;\n"
     //
 );
-ABSL_FLAG(int32_t, num_times, 1,
-          "Number of times to run the test case");
+ABSL_FLAG(int32_t, num_times, 1, "Number of times to run the test case");
 ABSL_FLAG(std::string, default_service_account, "",
           "Email of GCE default service account");
 ABSL_FLAG(std::string, service_account_key_file, "",
@@ -356,13 +355,17 @@ int main(int argc, char** argv) {
 
   if (absl::GetFlag(FLAGS_enable_observability)) {
     grpc::experimental::GcpObservabilityClose();
-    // TODO(stanleycheung): remove this once the observability exporter plugin is able to
-    //                      gracefully flush observability data to cloud at shutdown
+    // TODO(stanleycheung): remove this once the observability exporter plugin
+    // is able to
+    //                      gracefully flush observability data to cloud at
+    //                      shutdown
     const int observability_exporter_sleep_seconds = 65;
-    gpr_log(GPR_DEBUG, "Sleeping %ds before shutdown.", observability_exporter_sleep_seconds);
+    gpr_log(GPR_DEBUG, "Sleeping %ds before shutdown.",
+            observability_exporter_sleep_seconds);
     gpr_sleep_until(
         gpr_time_add(gpr_now(GPR_CLOCK_REALTIME),
-                     gpr_time_from_seconds(observability_exporter_sleep_seconds, GPR_TIMESPAN)));
+                     gpr_time_from_seconds(observability_exporter_sleep_seconds,
+                                           GPR_TIMESPAN)));
   }
 
   return ret;
