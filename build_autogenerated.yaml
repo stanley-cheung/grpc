@@ -8940,6 +8940,7 @@ targets:
   language: c++
   headers:
   - test/core/security/oauth2_utils.h
+  - test/cpp/interop/client_flags.h
   - test/cpp/interop/client_helper.h
   - test/cpp/interop/interop_client.h
   src:
@@ -8948,6 +8949,7 @@ targets:
   - src/proto/grpc/testing/test.proto
   - test/core/security/oauth2_utils.cc
   - test/cpp/interop/client.cc
+  - test/cpp/interop/client_flags.cc
   - test/cpp/interop/client_helper.cc
   - test/cpp/interop/interop_client.cc
   deps:

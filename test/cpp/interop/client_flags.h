@@ -45,5 +45,4 @@ ABSL_DECLARE_FLAG(int32_t, iteration_interval);
 ABSL_DECLARE_FLAG(std::string, additional_metadata);
 ABSL_DECLARE_FLAG(bool, log_metadata_and_status);
 
-
 #endif  // GRPC_TEST_CPP_INTEROP_CLIENT_FLAGS_H
