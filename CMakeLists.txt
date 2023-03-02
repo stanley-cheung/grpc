@@ -14089,6 +14089,7 @@ add_executable(interop_client
   ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/test.grpc.pb.h
   test/core/security/oauth2_utils.cc
   test/cpp/interop/client.cc
+  test/cpp/interop/client_flags.cc
   test/cpp/interop/client_helper.cc
   test/cpp/interop/interop_client.cc
   third_party/googletest/googletest/src/gtest-all.cc
