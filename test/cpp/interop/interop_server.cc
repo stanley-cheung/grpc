@@ -193,6 +193,7 @@ class TestServiceImpl : public TestService::Service {
 
   Status UnaryCall(ServerContext* context, const SimpleRequest* request,
                    SimpleResponse* response) override {
+    gpr_log(GPR_DEBUG, "processing UnaryCall request");
     MaybeEchoMetadata(context);
     if (request->has_response_compressed()) {
       const bool compression_requested = request->response_compressed().value();
