@@ -20,6 +20,10 @@
 #include <unordered_map>
 
 #include "absl/flags/flag.h"
+#include "opentelemetry/exporters/prometheus/exporter_factory.h"
+#include "opentelemetry/exporters/prometheus/exporter_options.h"
+#include "opentelemetry/sdk/metrics/meter_provider.h"
+#include "opentelemetry/sdk/metrics/meter_provider_factory.h"
 
 #include <grpc/grpc.h>
 #include <grpc/support/alloc.h>
@@ -28,10 +32,6 @@
 #include <grpcpp/client_context.h>
 #include <grpcpp/ext/gcp_observability.h>
 
-#include "opentelemetry/exporters/prometheus/exporter_factory.h"
-#include "opentelemetry/exporters/prometheus/exporter_options.h"
-#include "opentelemetry/sdk/metrics/meter_provider_factory.h"
-#include "opentelemetry/sdk/metrics/meter_provider.h"
 #include "src/core/lib/gpr/string.h"
 #include "src/core/lib/gprpp/crash.h"
 #include "src/cpp/ext/otel/otel_plugin.h"
@@ -220,11 +220,14 @@ int main(int argc, char** argv) {
   }
 
   opentelemetry::exporter::metrics::PrometheusExporterOptions opts;
-  auto prometheus_exporter = opentelemetry::exporter::metrics::PrometheusExporterFactory::Create(opts);
+  auto prometheus_exporter =
+      opentelemetry::exporter::metrics::PrometheusExporterFactory::Create(opts);
   auto u_provider = opentelemetry::sdk::metrics::MeterProviderFactory::Create();
-  auto *p         = static_cast<opentelemetry::sdk::metrics::MeterProvider *>(u_provider.get());
+  auto* p = static_cast<opentelemetry::sdk::metrics::MeterProvider*>(
+      u_provider.get());
   p->AddMetricReader(std::move(prometheus_exporter));
-  std::shared_ptr<opentelemetry::metrics::MeterProvider> meter_provider(std::move(u_provider));
+  std::shared_ptr<opentelemetry::metrics::MeterProvider> meter_provider(
+      std::move(u_provider));
   grpc::internal::OpenTelemetryPluginBuilder ot_builder;
   ot_builder.EnableMetrics({"grpc.client.attempt.started"});
   ot_builder.SetMeterProvider(std::move(meter_provider));
