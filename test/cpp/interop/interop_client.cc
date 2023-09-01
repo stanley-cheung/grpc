@@ -266,7 +266,6 @@ bool InteropClient::PerformLargeUnary(SimpleRequest* request,
   // Payload related checks.
   GPR_ASSERT(response->payload().body() ==
              std::string(kLargeResponseSize, '\0'));
-  gpr_log(GPR_DEBUG, "Large unary done.");
   return true;
 }
 
