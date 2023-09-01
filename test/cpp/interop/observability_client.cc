@@ -226,7 +226,16 @@ int main(int argc, char** argv) {
   p->AddMetricReader(std::move(prometheus_exporter));
   std::shared_ptr<opentelemetry::metrics::MeterProvider> meter_provider(std::move(u_provider));
   grpc::internal::OpenTelemetryPluginBuilder ot_builder;
-  ot_builder.EnableMetrics({"grpc.client.attempt.started"});
+  ot_builder.EnableMetrics({
+      "grpc.client.attempt.started",
+      "grpc.client.attempt.duration",
+      "grpc.client.attempt.sent_total_compressed_message_size",
+      "grpc.client.attempt.rcvd_total_compressed_message_size",
+      "grpc.server.call.started",
+      "grpc.server.call.duration",
+      "grpc.server.call.sent_total_compressed_message_size",
+      "grpc.server.call.rcvd_total_compressed_message_size",
+    });
   ot_builder.SetMeterProvider(std::move(meter_provider));
   ot_builder.BuildAndRegisterGlobal();
 
@@ -382,6 +391,9 @@ int main(int argc, char** argv) {
             absl::GetFlag(FLAGS_test_case).c_str(), test_cases.c_str());
     ret = 1;
   }
+
+  gpr_log(GPR_DEBUG, "Sleeping 60 seconds");
+  sleep(60);
 
   if (absl::GetFlag(FLAGS_enable_observability)) {
     grpc::experimental::GcpObservabilityClose();
