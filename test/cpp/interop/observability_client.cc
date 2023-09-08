@@ -28,8 +28,13 @@
 #include <grpcpp/client_context.h>
 #include <grpcpp/ext/gcp_observability.h>
 
+#include "opentelemetry/exporters/prometheus/exporter_factory.h"
+#include "opentelemetry/exporters/prometheus/exporter_options.h"
+#include "opentelemetry/sdk/metrics/meter_provider_factory.h"
+#include "opentelemetry/sdk/metrics/meter_provider.h"
 #include "src/core/lib/gpr/string.h"
 #include "src/core/lib/gprpp/crash.h"
+#include "src/cpp/ext/otel/otel_plugin.h"
 #include "test/core/util/test_config.h"
 #include "test/cpp/interop/client_helper.h"
 #include "test/cpp/interop/interop_client.h"
@@ -214,6 +219,26 @@ int main(int argc, char** argv) {
     }
   }
 
+  opentelemetry::exporter::metrics::PrometheusExporterOptions opts;
+  auto prometheus_exporter = opentelemetry::exporter::metrics::PrometheusExporterFactory::Create(opts);
+  auto u_provider = opentelemetry::sdk::metrics::MeterProviderFactory::Create();
+  auto *p         = static_cast<opentelemetry::sdk::metrics::MeterProvider *>(u_provider.get());
+  p->AddMetricReader(std::move(prometheus_exporter));
+  std::shared_ptr<opentelemetry::metrics::MeterProvider> meter_provider(std::move(u_provider));
+  grpc::internal::OpenTelemetryPluginBuilder ot_builder;
+  ot_builder.EnableMetrics({
+      "grpc.client.attempt.started",
+      "grpc.client.attempt.duration",
+      "grpc.client.attempt.sent_total_compressed_message_size",
+      "grpc.client.attempt.rcvd_total_compressed_message_size",
+      "grpc.server.call.started",
+      "grpc.server.call.duration",
+      "grpc.server.call.sent_total_compressed_message_size",
+      "grpc.server.call.rcvd_total_compressed_message_size",
+    });
+  ot_builder.SetMeterProvider(std::move(meter_provider));
+  ot_builder.BuildAndRegisterGlobal();
+
   grpc::testing::ChannelCreationFunc channel_creation_func;
   std::string test_case = absl::GetFlag(FLAGS_test_case);
   if (absl::GetFlag(FLAGS_additional_metadata).empty()) {
@@ -366,6 +391,9 @@ int main(int argc, char** argv) {
             absl::GetFlag(FLAGS_test_case).c_str(), test_cases.c_str());
     ret = 1;
   }
+
+  gpr_log(GPR_DEBUG, "Sleeping 60 seconds");
+  sleep(60);
 
   if (absl::GetFlag(FLAGS_enable_observability)) {
     grpc::experimental::GcpObservabilityClose();
