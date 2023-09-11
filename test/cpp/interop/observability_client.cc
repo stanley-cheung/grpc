@@ -212,11 +212,11 @@ int main(int argc, char** argv) {
   int ret = 0;
 
   if (absl::GetFlag(FLAGS_enable_observability)) {
-    auto status = grpc::experimental::GcpObservabilityInit();
-    gpr_log(GPR_DEBUG, "GcpObservabilityInit() status_code: %d", status.code());
-    if (!status.ok()) {
-      return 1;
-    }
+    //auto status = grpc::experimental::GcpObservabilityInit();
+    //gpr_log(GPR_DEBUG, "GcpObservabilityInit() status_code: %d", status.code());
+    //if (!status.ok()) {
+    //  return 1;
+    //}
   }
 
   gpr_log(GPR_DEBUG, "registering prometheus exporter");
@@ -397,7 +397,7 @@ int main(int argc, char** argv) {
   sleep(60);
 
   if (absl::GetFlag(FLAGS_enable_observability)) {
-    grpc::experimental::GcpObservabilityClose();
+    //grpc::experimental::GcpObservabilityClose();
   }
 
   return ret;
