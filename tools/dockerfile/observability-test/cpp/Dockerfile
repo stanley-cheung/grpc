@@ -40,6 +40,8 @@ FROM debian:bullseye
 
 ENV GRPC_TRACE environment_autodetect
 ENV GRPC_VERBOSITY debug
+ENV BAZELISK_SKIP_WRAPPER 1
+ENV USE_BAZEL_VERSION 5.4.1
 
 
 WORKDIR /usr/share/grpc
