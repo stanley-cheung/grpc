@@ -62,4 +62,6 @@ COPY --from=build /grpc/bazel-bin/test/cpp/interop/observability_interop_client 
 WORKDIR /grpc/tools/dockerfile/observability-test/cpp
 COPY --from=build /grpc/tools/dockerfile/observability-test/cpp/run.sh .
 
+EXPOSE 9464
+
 ENTRYPOINT ["/grpc/tools/dockerfile/observability-test/cpp/run.sh"]
