@@ -21,10 +21,16 @@ FROM debian:bullseye as build
 
 RUN apt-get update && apt-get install -y clang curl git
 
+ENV BAZELISK_SKIP_WRAPPER 1
+ENV USE_BAZEL_VERSION 5.4.1
+RUN curl -sSL https://github.com/bazelbuild/bazelisk/releases/download/v1.18.0/bazelisk-linux-amd64 \
+  -o /usr/local/bin/bazel && \
+  chmod +x /usr/local/bin/bazel
+
 WORKDIR /grpc
 COPY . .
 
-RUN /grpc/tools/bazel build test/cpp/interop:observability_interop_test
+RUN /usr/local/bin/bazel build test/cpp/interop:observability_interop_test
 
 
 
@@ -41,6 +47,8 @@ FROM debian:bullseye
 ENV GRPC_TRACE environment_autodetect
 ENV GRPC_VERBOSITY debug
 
+WORKDIR /usr/bin
+COPY --from=build /usr/bin/curl .
 
 WORKDIR /usr/share/grpc
 COPY --from=build /grpc/etc/roots.pem .
@@ -52,5 +60,7 @@ COPY --from=build /grpc/bazel-bin/test/cpp/interop/observability_interop_client 
 
 WORKDIR /grpc/tools/dockerfile/observability-test/cpp
 COPY --from=build /grpc/tools/dockerfile/observability-test/cpp/run.sh .
+
+EXPOSE 9464
 
 ENTRYPOINT ["/grpc/tools/dockerfile/observability-test/cpp/run.sh"]
