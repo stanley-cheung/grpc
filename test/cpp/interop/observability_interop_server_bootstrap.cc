@@ -41,11 +41,12 @@ int main(int argc, char** argv) {
   signal(SIGINT, sigint_handler);
 
   if (absl::GetFlag(FLAGS_enable_observability)) {
-    auto status = grpc::experimental::GcpObservabilityInit();
-    gpr_log(GPR_DEBUG, "GcpObservabilityInit() status_code: %d", status.code());
-    if (!status.ok()) {
-      return 1;
-    }
+    //auto status = grpc::experimental::GcpObservabilityInit();
+    //gpr_log(GPR_DEBUG, "GcpObservabilityInit() status_code: %d", status.code());
+    //if (!status.ok()) {
+    //  return 1;
+    //}
+    gpr_log(GPR_DEBUG, "Skipping old Gcp observabilty init");
   }
 
   grpc::testing::interop::RunServer(
