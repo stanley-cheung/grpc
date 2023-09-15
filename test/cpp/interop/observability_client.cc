@@ -224,10 +224,8 @@ int main(int argc, char** argv) {
   opentelemetry::exporter::metrics::PrometheusExporterOptions opts;
   opts.url = "0.0.0.0:9464";
   auto prometheus_exporter = opentelemetry::exporter::metrics::PrometheusExporterFactory::Create(opts);
-  auto u_provider = opentelemetry::sdk::metrics::MeterProviderFactory::Create();
-  auto *p         = static_cast<opentelemetry::sdk::metrics::MeterProvider *>(u_provider.get());
-  p->AddMetricReader(std::move(prometheus_exporter));
-  std::shared_ptr<opentelemetry::metrics::MeterProvider> meter_provider(std::move(u_provider));
+  auto meter_provider = std::make_shared<opentelemetry::sdk::metrics::MeterProvider>();
+  meter_provider->AddMetricReader(std::move(prometheus_exporter));
   grpc::internal::CsmObservabilityBuilder csm_o11y_builder;
   csm_o11y_builder.SetMeterProvider(std::move(meter_provider));
   csm_o11y_builder.BuildAndRegister();
