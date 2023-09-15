@@ -34,7 +34,7 @@
 #include "opentelemetry/sdk/metrics/meter_provider.h"
 #include "src/core/lib/gpr/string.h"
 #include "src/core/lib/gprpp/crash.h"
-#include "src/cpp/ext/otel/otel_plugin.h"
+#include "src/cpp/ext/csm/csm_observability.h"
 #include "test/core/util/test_config.h"
 #include "test/cpp/interop/client_helper.h"
 #include "test/cpp/interop/interop_client.h"
@@ -228,9 +228,9 @@ int main(int argc, char** argv) {
   auto *p         = static_cast<opentelemetry::sdk::metrics::MeterProvider *>(u_provider.get());
   p->AddMetricReader(std::move(prometheus_exporter));
   std::shared_ptr<opentelemetry::metrics::MeterProvider> meter_provider(std::move(u_provider));
-  grpc::internal::OpenTelemetryPluginBuilder ot_builder;
-  ot_builder.SetMeterProvider(std::move(meter_provider));
-  ot_builder.BuildAndRegisterGlobal();
+  grpc::internal::CsmObservabilityBuilder csm_o11y_builder;
+  csm_o11y_builder.SetMeterProvider(std::move(meter_provider));
+  csm_o11y_builder.BuildAndRegister();
 
   grpc::testing::ChannelCreationFunc channel_creation_func;
   std::string test_case = absl::GetFlag(FLAGS_test_case);
