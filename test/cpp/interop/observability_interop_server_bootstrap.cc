@@ -30,6 +30,8 @@ gpr_atm grpc::testing::interop::g_got_sigint;
 
 ABSL_FLAG(bool, enable_observability, false,
           "Whether to enable GCP Observability");
+ABSL_FLAG(bool, enable_csm_observability, false,
+          "Whether to enable CSM Observability");
 
 static void sigint_handler(int /*x*/) {
   gpr_atm_no_barrier_store(&grpc::testing::interop::g_got_sigint, true);
