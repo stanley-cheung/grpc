@@ -20,6 +20,9 @@
 #include <unordered_map>
 
 #include "absl/flags/flag.h"
+#include "opentelemetry/exporters/prometheus/exporter_factory.h"
+#include "opentelemetry/exporters/prometheus/exporter_options.h"
+#include "opentelemetry/sdk/metrics/meter_provider.h"
 
 #include <grpc/grpc.h>
 #include <grpc/support/alloc.h>
@@ -28,9 +31,6 @@
 #include <grpcpp/client_context.h>
 #include <grpcpp/ext/gcp_observability.h>
 
-#include "opentelemetry/exporters/prometheus/exporter_factory.h"
-#include "opentelemetry/exporters/prometheus/exporter_options.h"
-#include "opentelemetry/sdk/metrics/meter_provider.h"
 #include "src/core/lib/gpr/string.h"
 #include "src/core/lib/gprpp/crash.h"
 #include "src/cpp/ext/csm/csm_observability.h"
@@ -223,10 +223,14 @@ int main(int argc, char** argv) {
   if (absl::GetFlag(FLAGS_enable_csm_observability)) {
     gpr_log(GPR_DEBUG, "Registering Prometheus exporter");
     opentelemetry::exporter::metrics::PrometheusExporterOptions opts;
-    // default was "localhost:9464" which causes connection issue across GKE pods
+    // default was "localhost:9464" which causes connection issue across GKE
+    // pods
     opts.url = "0.0.0.0:9464";
-    auto prometheus_exporter = opentelemetry::exporter::metrics::PrometheusExporterFactory::Create(opts);
-    auto meter_provider = std::make_shared<opentelemetry::sdk::metrics::MeterProvider>();
+    auto prometheus_exporter =
+        opentelemetry::exporter::metrics::PrometheusExporterFactory::Create(
+            opts);
+    auto meter_provider =
+        std::make_shared<opentelemetry::sdk::metrics::MeterProvider>();
     meter_provider->AddMetricReader(std::move(prometheus_exporter));
     grpc::internal::CsmObservabilityBuilder csm_o11y_builder;
     csm_o11y_builder.SetMeterProvider(std::move(meter_provider));
