@@ -28,8 +28,12 @@
 #include <grpcpp/client_context.h>
 #include <grpcpp/ext/gcp_observability.h>
 
+#include "opentelemetry/exporters/prometheus/exporter_factory.h"
+#include "opentelemetry/exporters/prometheus/exporter_options.h"
+#include "opentelemetry/sdk/metrics/meter_provider.h"
 #include "src/core/lib/gpr/string.h"
 #include "src/core/lib/gprpp/crash.h"
+#include "src/cpp/ext/csm/csm_observability.h"
 #include "test/core/util/test_config.h"
 #include "test/cpp/interop/client_helper.h"
 #include "test/cpp/interop/interop_client.h"
@@ -136,6 +140,8 @@ ABSL_FLAG(
     "grpc-status and error message to the console, in a stable format.");
 ABSL_FLAG(bool, enable_observability, false,
           "Whether to enable GCP Observability");
+ABSL_FLAG(bool, enable_csm_observability, false,
+          "Whether to enable CSM Observability");
 
 using grpc::testing::CreateChannelForTestCase;
 using grpc::testing::GetServiceAccountJsonKey;
@@ -212,6 +218,19 @@ int main(int argc, char** argv) {
     if (!status.ok()) {
       return 1;
     }
+  }
+
+  if (absl::GetFlag(FLAGS_enable_csm_observability)) {
+    gpr_log(GPR_DEBUG, "Registering Prometheus exporter");
+    opentelemetry::exporter::metrics::PrometheusExporterOptions opts;
+    // default was "localhost:9464" which causes connection issue across GKE pods
+    opts.url = "0.0.0.0:9464";
+    auto prometheus_exporter = opentelemetry::exporter::metrics::PrometheusExporterFactory::Create(opts);
+    auto meter_provider = std::make_shared<opentelemetry::sdk::metrics::MeterProvider>();
+    meter_provider->AddMetricReader(std::move(prometheus_exporter));
+    grpc::internal::CsmObservabilityBuilder csm_o11y_builder;
+    csm_o11y_builder.SetMeterProvider(std::move(meter_provider));
+    auto status = csm_o11y_builder.BuildAndRegister();
   }
 
   grpc::testing::ChannelCreationFunc channel_creation_func;
@@ -366,6 +385,9 @@ int main(int argc, char** argv) {
             absl::GetFlag(FLAGS_test_case).c_str(), test_cases.c_str());
     ret = 1;
   }
+
+  gpr_log(GPR_DEBUG, "Sleeping 60 seconds");
+  sleep(60);
 
   if (absl::GetFlag(FLAGS_enable_observability)) {
     grpc::experimental::GcpObservabilityClose();
