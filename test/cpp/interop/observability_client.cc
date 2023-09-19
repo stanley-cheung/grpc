@@ -33,7 +33,7 @@
 #include "opentelemetry/sdk/metrics/meter_provider.h"
 #include "src/core/lib/gpr/string.h"
 #include "src/core/lib/gprpp/crash.h"
-#include "src/cpp/ext/csm/csm_observability.h"
+#include "src/cpp/ext/otel/otel_plugin.h"
 #include "test/core/util/test_config.h"
 #include "test/cpp/interop/client_helper.h"
 #include "test/cpp/interop/interop_client.h"
@@ -140,8 +140,8 @@ ABSL_FLAG(
     "grpc-status and error message to the console, in a stable format.");
 ABSL_FLAG(bool, enable_observability, false,
           "Whether to enable GCP Observability");
-ABSL_FLAG(bool, enable_csm_observability, false,
-          "Whether to enable CSM Observability");
+ABSL_FLAG(bool, enable_otel_plugin, false,
+          "Whether to enable OpenTelemetry Plugin");
 
 using grpc::testing::CreateChannelForTestCase;
 using grpc::testing::GetServiceAccountJsonKey;
@@ -220,7 +220,7 @@ int main(int argc, char** argv) {
     }
   }
 
-  if (absl::GetFlag(FLAGS_enable_csm_observability)) {
+  if (absl::GetFlag(FLAGS_enable_otel_plugin)) {
     gpr_log(GPR_DEBUG, "Registering Prometheus exporter");
     opentelemetry::exporter::metrics::PrometheusExporterOptions opts;
     // default was "localhost:9464" which causes connection issue across GKE pods
@@ -228,9 +228,10 @@ int main(int argc, char** argv) {
     auto prometheus_exporter = opentelemetry::exporter::metrics::PrometheusExporterFactory::Create(opts);
     auto meter_provider = std::make_shared<opentelemetry::sdk::metrics::MeterProvider>();
     meter_provider->AddMetricReader(std::move(prometheus_exporter));
-    grpc::internal::CsmObservabilityBuilder csm_o11y_builder;
-    csm_o11y_builder.SetMeterProvider(std::move(meter_provider));
-    auto status = csm_o11y_builder.BuildAndRegister();
+    grpc::internal::OpenTelemetryPluginBuilder otel_builder;
+    otel_builder.EnableMetric(grpc::internal::OTelClientAttemptStartedInstrumentName());
+    otel_builder.SetMeterProvider(std::move(meter_provider));
+    otel_builder.BuildAndRegisterGlobal();
   }
 
   grpc::testing::ChannelCreationFunc channel_creation_func;

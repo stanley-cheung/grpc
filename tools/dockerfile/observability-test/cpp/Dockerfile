@@ -21,16 +21,10 @@ FROM debian:bullseye as build
 
 RUN apt-get update && apt-get install -y clang curl git
 
-ENV BAZELISK_SKIP_WRAPPER 1
-ENV USE_BAZEL_VERSION 5.4.1
-RUN curl -sSL https://github.com/bazelbuild/bazelisk/releases/download/v1.18.0/bazelisk-linux-amd64 \
-  -o /usr/local/bin/bazel && \
-  chmod +x /usr/local/bin/bazel
-
 WORKDIR /grpc
 COPY . .
 
-RUN /usr/local/bin/bazel build test/cpp/interop:observability_interop_test
+RUN /grpc/tools/bazel build test/cpp/interop:observability_interop_test
 
 
 

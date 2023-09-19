@@ -468,7 +468,7 @@ grpc_cc_library(
     deps = [
         ":client_helper_lib",
         "//:grpcpp_gcp_observability",
-        "//src/cpp/ext/csm:csm_observability",
+        "//src/cpp/ext/otel:otel_plugin",
     ],
 )
 
