@@ -18,11 +18,11 @@ cd "$(dirname "$0")"/../..
 
 if [ "$1" = "server" ] ; then
   /grpc/bazel-bin/test/cpp/interop/observability_interop_server \
-    --enable_observability=true "${@:2}"
+    --enable_otel_plugin=true "${@:2}"
 
 elif [ "$1" = "client" ] ; then
   /grpc/bazel-bin/test/cpp/interop/observability_interop_client \
-    --enable_observability=true "${@:2}"
+    --enable_otel_plugin=true "${@:2}"
 
 else
   echo "Invalid action: $1. Usage:"
