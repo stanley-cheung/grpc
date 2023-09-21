@@ -41,6 +41,7 @@ FROM debian:bullseye
 ENV GRPC_TRACE environment_autodetect
 ENV GRPC_VERBOSITY debug
 
+RUN apt-get update && apt-get install -y curl net-tools && apt-get clean
 
 WORKDIR /usr/share/grpc
 COPY --from=build /grpc/etc/roots.pem .
