@@ -380,8 +380,11 @@ int main(int argc, char** argv) {
       }
     }
   } else if (actions.find(absl::GetFlag(FLAGS_test_case)) != actions.end()) {
-    for (int i = 0; i < absl::GetFlag(FLAGS_num_times); i++) {
-      actions.find(absl::GetFlag(FLAGS_test_case))->second();
+    for (int j = 0; j < 8; j++) {
+      for (int i = 0; i < absl::GetFlag(FLAGS_num_times); i++) {
+        actions.find(absl::GetFlag(FLAGS_test_case))->second();
+      }
+      sleep(5);
     }
   } else {
     std::string test_cases;
