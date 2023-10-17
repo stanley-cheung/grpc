@@ -264,7 +264,8 @@ bool InteropClient::PerformLargeUnary(SimpleRequest* request,
   custom_checks_fn(inspector, request, response);
 
   // Payload related checks.
-  gpr_log(GPR_DEBUG, "client received UnaryCall body payload length %d", response->payload().body().size());
+  gpr_log(GPR_DEBUG, "client received UnaryCall body payload length %zu",
+          response->payload().body().size());
   GPR_ASSERT(response->payload().body() ==
              std::string(kLargeResponseSize, '\0'));
   return true;
