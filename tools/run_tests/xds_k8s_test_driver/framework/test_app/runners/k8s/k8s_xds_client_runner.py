@@ -166,7 +166,7 @@ class KubernetesClientRunner(k8s_base_runner.KubernetesBaseRunner):
         # This is GMP (Google Managed Prometheus)
         if enable_csm_observability:
             self._create_pod_monitoring(
-                'csm/pod-monitoring.yaml',
+                "csm/pod-monitoring.yaml",
                 namespace_name=self.k8s_namespace.name,
                 deployment_id=self.deployment_id,
             )

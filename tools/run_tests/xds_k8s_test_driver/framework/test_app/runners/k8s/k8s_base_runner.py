@@ -300,14 +300,18 @@ class KubernetesBaseRunner(base_runner.BaseRunner, metaclass=ABCMeta):
         return self.k8s_namespace.get()
 
     def _create_pod_monitoring(self, template, **kwargs) -> None:
-        if not kwargs['namespace_name']:
+        if not kwargs["namespace_name"]:
             raise _RunnerError(
-                "namespace_name required to create PodMonitoring resource")
-        if not kwargs['deployment_id']:
+                "namespace_name required to create PodMonitoring resource"
+            )
+        if not kwargs["deployment_id"]:
             raise _RunnerError(
-                "deployment_id required to create PodMonitoring resource")
-        pod_monitoring = self._create_from_template(template, custom_object=True, **kwargs)
-        if pod_monitoring.metadata.namespace != kwargs['namespace_name']:
+                "deployment_id required to create PodMonitoring resource"
+            )
+        pod_monitoring = self._create_from_template(
+            template, custom_object=True, **kwargs
+        )
+        if pod_monitoring.metadata.namespace != kwargs["namespace_name"]:
             raise _RunnerError(
                 "PodMonitoring resource created with unexpected namespace: "
                 f"{pod_monitoring.metadata.namespace}"

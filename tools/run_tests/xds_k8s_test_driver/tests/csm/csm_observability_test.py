@@ -45,7 +45,7 @@ class CsmObservabilityTest(xds_k8s_testcase.RegularXdsKubernetesTestCase):
 
         with self.subTest("5_start_test_server"):
             test_server: _XdsTestServer = self.startTestServers(
-              enable_csm_observability=True
+                enable_csm_observability=True
             )[0]
 
         with self.subTest("6_add_server_backends_to_backend_service"):
@@ -53,8 +53,8 @@ class CsmObservabilityTest(xds_k8s_testcase.RegularXdsKubernetesTestCase):
 
         with self.subTest("7_start_test_client"):
             test_client: _XdsTestClient = self.startTestClient(
-                test_server,
-                enable_csm_observability=True)
+                test_server, enable_csm_observability=True
+            )
 
         with self.subTest("8_test_client_xds_config_exists"):
             self.assertXdsConfigExists(test_client)
