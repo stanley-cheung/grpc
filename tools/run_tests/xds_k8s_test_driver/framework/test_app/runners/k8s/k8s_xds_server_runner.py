@@ -120,6 +120,7 @@ class KubernetesServerRunner(k8s_base_runner.KubernetesBaseRunner):
         replica_count: int = 1,
         log_to_stdout: bool = False,
         bootstrap_version: Optional[str] = None,
+        enable_csm_observability: bool = False,
     ) -> List[XdsTestServer]:
         if not maintenance_port:
             maintenance_port = self._get_default_maintenance_port(secure_mode)
@@ -204,6 +205,7 @@ class KubernetesServerRunner(k8s_base_runner.KubernetesBaseRunner):
             maintenance_port=maintenance_port,
             secure_mode=secure_mode,
             bootstrap_version=bootstrap_version,
+            enable_csm_observability=enable_csm_observability,
         )
 
         return self._make_servers_for_deployment(
