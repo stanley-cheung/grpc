@@ -212,6 +212,7 @@ then
   # Download the right version of phpunit to match PHP version
   sudo curl -sSL https://phar.phpunit.de/phpunit-9.5.9.phar -o /usr/local/bin/phpunit
   sudo chmod +x /usr/local/bin/phpunit
+  time brew install gdb || true
 fi
 
 # TODO(jtattermusch): better debugging of clock skew, remove once not needed
