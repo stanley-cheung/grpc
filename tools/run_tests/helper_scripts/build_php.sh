@@ -15,13 +15,14 @@
 
 set -ex
 
-CONFIG=${CONFIG:-opt}
+CONFIG=dbg
 
 # change to grpc repo root
 cd "$(dirname "$0")/../../.."
 
 # build C core first
 make -j"${GRPC_RUN_TESTS_JOBS}" EMBED_OPENSSL=true EMBED_ZLIB=true static_c shared_c
+find . -name 'libgrpc.*' -exec sh -c "nm -aU {} | grep EventEngine " \; || true
 
 repo_root="$(pwd)"
 export GRPC_LIB_SUBDIR=libs/$CONFIG
@@ -37,4 +38,14 @@ if [ "$CONFIG" != "gcov" ] ; then
 else
   ./configure --enable-grpc="${repo_root}" --enable-coverage --enable-tests
 fi
+#sed -ibak "s/-lgrpc -lgpr -ldl -lpthread/-lgrpc -lgpr -ldl -lpthread -gmlt/" Makefile
+cat Makefile
 make -j"${GRPC_RUN_TESTS_JOBS}"
+
+ls -l /Volumes/BuildData/tmpfs/altsrc/github/grpc/workspace_php7_macos_dbg_native/src/php/ext/grpc/modules
+nm -aU /Volumes/BuildData/tmpfs/altsrc/github/grpc/workspace_php7_macos_dbg_native/src/php/ext/grpc/modules/grpc.so | grep EventEngine || true
+
+ls -l /Volumes/BuildData/tmpfs/altsrc/github/grpc/workspace_php7_macos_dbg_native/src/php/ext/grpc/.libs
+nm -ap /Volumes/BuildData/tmpfs/altsrc/github/grpc/workspace_php7_macos_dbg_native/src/php/ext/grpc/modules/grpc.so | grep OSO
+
+exit 1

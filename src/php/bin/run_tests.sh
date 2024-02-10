@@ -35,6 +35,7 @@ do
 done
 
 if [[ "$SKIP_PERSISTENT_CHANNEL_TESTS" != "true" ]]; then
+  sudo gdb -return-child-result -ex run -ex "thread apply all bt" -ex quit --args \
    $(which php) $extension_dir -d max_execution_time=300 $(which phpunit) -v --debug \
      ../tests/unit_tests/PersistentChannelTests
 fi
