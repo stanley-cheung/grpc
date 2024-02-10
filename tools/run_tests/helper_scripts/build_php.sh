@@ -40,6 +40,7 @@ else
 fi
 #sed -ibak "s/-lgrpc -lgpr -ldl -lpthread/-lgrpc -lgpr -ldl -lpthread -gmlt/" Makefile
 cat Makefile
+echo "===end of Makefile==="
 make -j"${GRPC_RUN_TESTS_JOBS}"
 
 ls -l /Volumes/BuildData/tmpfs/altsrc/github/grpc/workspace_php7_macos_dbg_native/src/php/ext/grpc/modules
