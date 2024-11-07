@@ -22,6 +22,8 @@ cd src/php/bin
 source ./determine_extension_dir.sh
 # in some jenkins macos machine, somehow the PHP build script can't find libgrpc.dylib
 export DYLD_LIBRARY_PATH=$root/libs/$CONFIG
+export GRPC_EXPERIMENTS=event_engine_client,event_engine_listener,event_engine_dns
+export GRPC_TRACE='event_engine*'
 $(which php) $extension_dir -d max_execution_time=300 $(which phpunit) -v --debug \
   --exclude-group persistent_list_bound_tests ../tests/unit_tests
 
